@@ -8,7 +8,7 @@
 namespace OpenLab\Connections;
 
 /**
- * Utilities.
+ * Utility methods.
  */
 class Util {
 	/**
