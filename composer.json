@@ -1,0 +1,17 @@
+{
+    "name": "openlab-at-city-tech/openlab-connections",
+    "type": "project",
+    "license": "GPLv3",
+    "autoload": {
+        "psr-4": {
+            "OpenLab\\Connections\\": "classes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Boone B Gorges",
+            "email": "boonebgorges@gmail.com"
+        }
+    ],
+    "require": {}
+}
