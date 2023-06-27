@@ -95,6 +95,7 @@ class Invitation {
 	 * Sets the invitation ID for this invitation.
 	 *
 	 * @param int $invitation_id Invitation ID.
+	 * @return void
 	 */
 	public function set_invitation_id( $invitation_id ) {
 		$this->invitation_id = (int) $invitation_id;
@@ -104,6 +105,7 @@ class Invitation {
 	 * Sets the inviter group ID for this invitation.
 	 *
 	 * @param int $inviter_group_id Inviter group ID.
+	 * @return void
 	 */
 	public function set_inviter_group_id( $inviter_group_id ) {
 		$this->inviter_group_id = (int) $inviter_group_id;
@@ -113,6 +115,7 @@ class Invitation {
 	 * Sets the invitee group ID for this invitation.
 	 *
 	 * @param int $invitee_group_id Invitee group ID.
+	 * @return void
 	 */
 	public function set_invitee_group_id( $invitee_group_id ) {
 		$this->invitee_group_id = (int) $invitee_group_id;
@@ -122,6 +125,7 @@ class Invitation {
 	 * Sets the inviter user ID for this invitation.
 	 *
 	 * @param int $inviter_user_id Inviter user ID.
+	 * @return void
 	 */
 	public function set_inviter_user_id( $inviter_user_id ) {
 		$this->inviter_user_id = (int) $inviter_user_id;
@@ -131,6 +135,7 @@ class Invitation {
 	 * Sets the connection ID for this invitation.
 	 *
 	 * @param int $connection_id Connection ID.
+	 * @return void
 	 */
 	public function set_connection_id( $connection_id ) {
 		$this->connection_id = (int) $connection_id;
@@ -139,7 +144,8 @@ class Invitation {
 	/**
 	 * Sets the date_created for this invitation.
 	 *
-	 * @param int $date_created Date created, in MySQL format.
+	 * @param string $date_created Date created, in MySQL format.
+	 * @return void
 	 */
 	public function set_date_created( $date_created ) {
 		$this->date_created = $date_created;
@@ -148,7 +154,8 @@ class Invitation {
 	/**
 	 * Sets the date_accepted for this invitation.
 	 *
-	 * @param int $date_accepted Date accepted, in MySQL format.
+	 * @param string $date_accepted Date accepted, in MySQL format.
+	 * @return void
 	 */
 	public function set_date_accepted( $date_accepted ) {
 		$this->date_accepted = $date_accepted;
@@ -289,7 +296,7 @@ class Invitation {
 	 * Returns an instance based on invitation_id.
 	 *
 	 * @param int $invitation_id ID of the invitation.
-	 * @return null|OpenLab_Group_Connection_Invitation
+	 * @return null|\OpenLab\Connections\Invitation
 	 */
 	public static function get_instance( $invitation_id ) {
 		global $wpdb;
@@ -321,13 +328,13 @@ class Invitation {
 	/**
 	 * Fetches invitations based on parameters.
 	 *
-	 * @param array $args {
+	 * @param mixed[] $args {
 	 *   Array of optional query arguments.
 	 *   @var int  $inviter_group_id Inviter group ID.
 	 *   @var int  $invitee_group_id Invitee group ID.
 	 *   @var bool $pending_only     True to return only the pending records.
 	 * }
-	 * @return array
+	 * @return \OpenLab\Connections\Invitation[]
 	 */
 	public static function get( $args = [] ) {
 		global $wpdb;
@@ -372,12 +379,14 @@ class Invitation {
 
 		$invitation_ids = $wpdb->get_col( $sql_statement );
 
-		return array_map(
+		$invitations = array_map(
 			function( $invitation_id ) {
 				return self::get_instance( $invitation_id );
 			},
 			$invitation_ids
 		);
+
+		return array_filter( $invitations );
 	}
 
 	/**

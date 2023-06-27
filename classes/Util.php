@@ -69,13 +69,13 @@ class Util {
 	/**
 	 * Sends a connection invitation.
 	 *
-	 * @param array $args {
+	 * @param array{'inviter_group_id': int, 'invitee_group_id': int, 'inviter_user_id': int} $args {
 	 *   Array of arguments.
 	 *   @var int $inviter_group_id ID of the group initiating the invitation.
 	 *   @var int $invitee_group_id ID of the group receiving the invitation.
 	 *   @var int $inviter_user_id  ID of the user initiating the invitation.
 	 * }
-	 * @return {
+	 * @return array{'success': bool, 'status': string} {
 	 *   @var bool   $success Whether the invitation was sent.
 	 *   @var string $status  Status code. 'success', 'invitation_exists', 'connection_exists', 'failure'.
 	 * }

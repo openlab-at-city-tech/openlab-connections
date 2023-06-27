@@ -19,7 +19,7 @@ class Frontend {
 	/**
 	 * Gets the singleton instance.
 	 *
-	 * @return \OpenLab\Modules\Schema
+	 * @return \OpenLab\Connections\Frontend
 	 */
 	public static function get_instance() {
 		static $instance;
@@ -65,9 +65,14 @@ class Frontend {
 			)
 		);
 
-		return $blocks_asset_file;
+		return $build_asset_file;
 	}
 
+	/**
+	 * Registers static assets.
+	 *
+	 * @return void
+	 */
 	public function register_assets() {
 		$build_asset_file = self::get_build_asset_file();
 
@@ -83,17 +88,6 @@ class Frontend {
 			OPENLAB_CONNECTIONS_PLUGIN_URL . '/build/frontend.js',
 			[ 'jquery', 'jquery-ui-autocomplete', 'wp-backbone' ],
 			$build_asset_file['version'],
-			true
-		);
-
-		return;
-
-		wp_register_script(
-			'openlab-group-connections',
-			// @todo move internally
-			get_stylesheet_directory_uri() . '/js/group-connections.js',
-			[ 'jquery', 'jquery-ui-autocomplete', 'wp-backbone' ],
-			OL_VERSION,
 			true
 		);
 	}
@@ -227,7 +221,7 @@ class Frontend {
 				$tail_parts = explode( '/', $url_tail );
 				$group_slug = $tail_parts[0];
 
-				$group_id = BP_Groups_Group::group_exists( $group_slug );
+				$group_id = groups_get_id( $group_slug );
 				if ( $group_id ) {
 					$group    = groups_get_group( $group_id );
 					$retval[] = $group_format_callback( $group );
