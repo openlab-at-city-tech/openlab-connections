@@ -1,0 +1,27 @@
+name: PHP Coding Standards
+
+on:
+  push:
+    paths:
+      - '**.php'
+      - '**.yml'
+
+jobs:
+  phpcs:
+    name: PHP Coding Standards
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # We update composer to avoid builds failing because of composer bugs see DWOPS-182
+    - name: Update Composer
+      run: |
+        sudo composer self-update --2
+        sudo chown $USER $HOME/.composer
+
+    - name: Configure Composer
+      run: composer install
+
+    - name: Run PHPCS
+      run: vendor/bin/phpcs ./
