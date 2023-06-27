@@ -1,4 +1,9 @@
 <?php
+/**
+ * Implementation of BP_Groups_Extension.
+ *
+ * @package openlab-connections
+ */
 
 namespace OpenLab\Connections;
 
@@ -43,11 +48,11 @@ class GroupExtension extends \BP_Group_Extension {
 			case 'new' :
 			case 'invitations' :
 				$template_name = bp_action_variable( 0 );
-			break;
+				break;
 
 			default :
 				$template_name = 'index';
-			break;
+				break;
 		}
 
 		bp_get_template_part( 'groups/single/connections/' . $template_name );

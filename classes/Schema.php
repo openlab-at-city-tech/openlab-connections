@@ -1,4 +1,9 @@
 <?php
+/**
+ * Schema definitions.
+ *
+ * @package openlab-connections
+ */
 
 namespace OpenLab\Connections;
 
@@ -79,7 +84,7 @@ class Schema {
 					KEY meta_key ( meta_key )
 				) {$charset_collate};";
 
-		if ( !  function_exists( 'dbDelta' ) ) {
+		if ( ! function_exists( 'dbDelta' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 		}
 
@@ -103,7 +108,7 @@ class Schema {
 
 	Accept or manage your connection invitations: {{{ol.manage-invites-url}}}',
 				'desc'      => 'A group is invited to a connection.',
-			]
+			],
 		];
 
 		foreach ( $emails as $email ) {
@@ -124,7 +129,7 @@ class Schema {
 
 			if ( $post_id ) {
 				$tt_ids = wp_set_object_terms( $post_id, $email['type'], bp_get_email_tax_type() );
-				if ( !  is_wp_error( $tt_ids ) ) {
+				if ( ! is_wp_error( $tt_ids ) ) {
 					$term = get_term_by( 'term_taxonomy_id', (int) $tt_ids[0], bp_get_email_tax_type() );
 					if ( $term instanceof \WP_Term ) {
 						wp_update_term(

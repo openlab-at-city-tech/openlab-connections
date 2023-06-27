@@ -13,7 +13,10 @@
         <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
         <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
 
-        <exclude name="Generic.Arrays.DisallowShortArraySyntax" />
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax" />
+
+        <exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE" />
+        <exclude name="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonDEFAULT" />
     </rule>
 
     <rule ref="WordPress.WP.I18n">
@@ -23,17 +26,17 @@
     </rule>
     <rule ref="WordPress.WP.DeprecatedFunctions">
         <properties>
-            <property name="minimum_supported_version" value="6.1" />
+            <property name="minimum_supported_version" value="6.2" />
         </properties>
     </rule>
     <rule ref="WordPress.WP.DeprecatedParameters">
         <properties>
-            <property name="minimum_supported_version" value="6.1" />
+            <property name="minimum_supported_version" value="6.2" />
         </properties>
     </rule>
     <rule ref="WordPress.WP.DeprecatedClasses">
         <properties>
-            <property name="minimum_supported_version" value="6.1" />
+            <property name="minimum_supported_version" value="6.2" />
         </properties>
     </rule>
 

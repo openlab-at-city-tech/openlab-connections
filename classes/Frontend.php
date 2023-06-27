@@ -1,6 +1,8 @@
 <?php
 /**
  * Frontend integration, including controller logic.
+ *
+ * @package openlab-connections
  */
 
 namespace OpenLab\Connections;
@@ -104,7 +106,7 @@ class Frontend {
 
 		check_admin_referer( 'openlab-connection-invitations', 'openlab-connection-invitations-nonce' );
 
-		if ( !  Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
+		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
 			return;
 		}
 
@@ -114,7 +116,7 @@ class Frontend {
 
 		$group_ids = array_map( 'intval', $_POST['invitation-group-ids'] );
 
-		$messages = ''; // Initialize the message string
+		$messages = '';
 
 		foreach ( $group_ids as $group_id ) {
 			$retval = Util::send_connection_invitation(
@@ -142,11 +144,11 @@ class Frontend {
 			}
 		}
 
-		if ( !  empty( $messages ) ) {
+		if ( ! empty( $messages ) ) {
 			bp_core_add_message( $messages );
 		}
 
-		bp_core_redirect( $_POST['_wp_http_referer'] );
+		bp_core_redirect( wp_get_referer() );
 	}
 
 	/**
@@ -155,11 +157,11 @@ class Frontend {
 	 * @return void
 	 */
 	public function process_invitation_delete_request() {
-		if ( !  bp_is_group() || ! bp_is_current_action( 'connections' ) || ! bp_is_action_variable( 0, 'new' ) ) {
+		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || ! bp_is_action_variable( 0, 'new' ) ) {
 			return;
 		}
 
-		if ( !  Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
+		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
 			return;
 		}
 
@@ -172,7 +174,7 @@ class Frontend {
 		check_admin_referer( 'delete-invitation-' . $invitation_id );
 
 		$invitation = Invitation::get_instance( $invitation_id );
-		if ( !  $invitation ) {
+		if ( ! $invitation ) {
 			return;
 		}
 
@@ -197,12 +199,14 @@ class Frontend {
 	public function process_group_search_ajax() {
 		global $wpdb;
 
-		if ( !  isset( $_GET['term'] ) ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['term'] ) ) {
 			echo wp_json_encode( [] );
 			die;
 		}
 
-		$term = wp_unslash( $_GET['term'] );
+		$term = sanitize_text_field( wp_unslash( $_GET['term'] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$group_format_callback = function( $group ) {
 			return [

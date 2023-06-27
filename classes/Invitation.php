@@ -1,4 +1,9 @@
 <?php
+/**
+ * Invitation object.
+ *
+ * @package openlab-connections
+ */
 
 namespace OpenLab\Connections;
 
@@ -173,6 +178,7 @@ class Invitation {
 
 		$retval = false;
 		if ( $this->invitation_id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$updated = $wpdb->update(
 				$table_name,
 				[
@@ -203,6 +209,7 @@ class Invitation {
 		} else {
 			$this->set_date_created( current_time( 'mysql' ) );
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$inserted = $wpdb->insert(
 				$table_name,
 				[
@@ -245,6 +252,7 @@ class Invitation {
 		$table_name = self::get_table_name();
 
 		// Delete the invitation from the database.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$deleted = $wpdb->delete(
 			$table_name,
 			array(
@@ -305,7 +313,8 @@ class Invitation {
 		if ( is_array( $cached ) ) {
 			$row = $cached;
 		} else {
-			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %i WHERE invitation_id = %d", self::get_table_name(), $invitation_id ) );
+			// phpcs:ignore WordPress.DB
+			$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE invitation_id = %d', self::get_table_name(), $invitation_id ) );
 
 			wp_cache_set( $invitation_id, $row, 'openlab_connection_invitations' );
 		}
@@ -352,6 +361,7 @@ class Invitation {
 		$table_name = self::get_table_name();
 
 		$sql = [
+			// phpcs:ignore WordPress.DB
 			'select' => $wpdb->prepare( 'SELECT invitation_id FROM %i', $table_name ),
 			'where'  => [],
 		];
@@ -365,8 +375,10 @@ class Invitation {
 			if ( is_array( $r[ $int_field ] ) ) {
 				$ints_sql = implode( ',', array_map( 'intval', $r[ $int_field ] ) );
 
+				// phpcs:ignore WordPress.DB
 				$sql['where'][ $int_field ] = $wpdb->prepare( "%i IN ({$ints_sql})", $int_field );
 			} else {
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders
 				$sql['where'][ $int_field ] = $wpdb->prepare( '%i = %d', $int_field, $r[ $int_field ] );
 			}
 		}
@@ -377,6 +389,7 @@ class Invitation {
 
 		$sql_statement = "{$sql['select']} WHERE " . implode( ' AND ', $sql['where'] );
 
+		// phpcs:ignore WordPress.DB
 		$invitation_ids = $wpdb->get_col( $sql_statement );
 
 		$invitations = array_map(

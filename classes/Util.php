@@ -63,6 +63,7 @@ class Util {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
 		return user_can( $user_id, 'bp_moderate' ) || groups_is_user_admin( $user_id, $group_id );
 	}
 
