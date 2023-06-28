@@ -38,7 +38,7 @@ class Schema {
 	 *
 	 * @return string[]
 	 */
-	public static function openlab_create_connection_tables() {
+	public static function create_tables() {
 		global $wpdb;
 
 		$sql = array();
@@ -59,6 +59,7 @@ class Schema {
 					connection_id bigint( 20 ),
 					date_created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					date_accepted datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+					date_rejected datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 					KEY inviter_user_id ( inviter_user_id ),
 					KEY inviter_group_id ( inviter_group_id ),
 					KEY invitee_group_id ( invitee_group_id )

@@ -61,6 +61,13 @@ class Invitation {
 	protected $date_accepted = '0000-00-00 00:00:00';
 
 	/**
+	 * Date rejected.
+	 *
+	 * @var string
+	 */
+	protected $date_rejected = '0000-00-00 00:00:00';
+
+	/**
 	 * Gets the invitation ID for this invitation.
 	 *
 	 * @return int
@@ -197,6 +204,7 @@ class Invitation {
 					'connection_id'    => $this->connection_id,
 					'date_created'     => $this->date_created,
 					'date_accepted'    => $this->date_accepted,
+					'date_rejected'    => $this->date_rejected,
 				],
 				[
 					'invitation_id' => $this->invitation_id,
@@ -206,6 +214,7 @@ class Invitation {
 					'%d',
 					'%d',
 					'%d',
+					'%s',
 					'%s',
 					'%s',
 				],
@@ -228,12 +237,14 @@ class Invitation {
 					'connection_id'    => $this->connection_id,
 					'date_created'     => $this->date_created,
 					'date_accepted'    => $this->date_accepted,
+					'date_rejected'    => $this->date_rejected,
 				],
 				[
 					'%d',
 					'%d',
 					'%d',
 					'%d',
+					'%s',
 					'%s',
 					'%s',
 				]
@@ -324,6 +335,16 @@ class Invitation {
 		$this->date_accepted = $current_time;
 		$this->connection_id = $connection->get_connection_id();
 
+		return $this->save();
+	}
+
+	/**
+	 * Rejects an invitation.
+	 *
+	 * @return bool
+	 */
+	public function reject() {
+		$this->date_rejected = current_time( 'mysql' );
 		return $this->save();
 	}
 
@@ -442,7 +463,7 @@ class Invitation {
 		}
 
 		if ( $r['pending_only'] ) {
-			$sql['where']['pending_only'] = 'date_accepted = "0000-00-00 00:00:00"';
+			$sql['where']['pending_only'] = 'date_accepted = "0000-00-00 00:00:00" AND date_rejected = "0000-00-00 00:00:00"';
 		}
 
 		$sql_statement = "{$sql['select']} WHERE " . implode( ' AND ', $sql['where'] );

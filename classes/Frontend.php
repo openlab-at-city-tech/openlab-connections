@@ -242,6 +242,38 @@ class Frontend {
 	 * @return void
 	 */
 	public function process_invitation_reject_request() {
+		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || ! bp_is_action_variable( 0, 'invitations' ) ) {
+			return;
+		}
+
+		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
+			return;
+		}
+
+		if ( empty( $_GET['reject-invitation'] ) ) {
+			return;
+		}
+
+		$invitation_id = (int) $_GET['reject-invitation'];
+
+		check_admin_referer( 'reject-invitation-' . $invitation_id );
+
+		$invitation = Invitation::get_instance( $invitation_id );
+		if ( ! $invitation ) {
+			return;
+		}
+
+		$rejected = $invitation->reject();
+
+		$redirect_url = bp_get_group_permalink( groups_get_current_group() ) . 'connections/invitations/';
+
+		if ( $accepted ) {
+			bp_core_add_message( 'You have successfully rejected the invitation.', 'success' );
+		} else {
+			bp_core_add_message( 'The invitation could not be rejected.', 'error' );
+		}
+
+		bp_core_redirect( $redirect_url );
 	}
 
 	/**
