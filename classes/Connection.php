@@ -43,6 +43,7 @@ class Connection {
 	 * Sets the connection ID for this connection.
 	 *
 	 * @param int $connection_id Connection ID.
+	 * @return void
 	 */
 	public function set_connection_id( $connection_id ) {
 		$this->connection_id = (int) $connection_id;
@@ -52,6 +53,7 @@ class Connection {
 	 * Sets the ID of the first group in this connection.
 	 *
 	 * @param int $group_1_id Group 1 ID.
+	 * @return void
 	 */
 	public function set_group_1_id( $group_1_id ) {
 		$this->group_1_id = (int) $group_1_id;
@@ -61,6 +63,7 @@ class Connection {
 	 * Sets the ID of the second group in this connection.
 	 *
 	 * @param int $group_2_id Group 2 ID.
+	 * @return void
 	 */
 	public function set_group_2_id( $group_2_id ) {
 		$this->group_2_id = (int) $group_2_id;
@@ -70,6 +73,7 @@ class Connection {
 	 * Sets the date_created for this connection.
 	 *
 	 * @param string $date_created Date created, in MySQL format.
+	 * @return void
 	 */
 	public function set_date_created( $date_created ) {
 		$this->date_created = $date_created;
@@ -158,7 +162,7 @@ class Connection {
 	 * Retrieves a connection instance based on the connection ID.
 	 *
 	 * @param int $connection_id Connection ID.
-	 * @return null|OpenLab_Group_Connection
+	 * @return null|\OpenLab\Connections\Connection
 	 */
 	public static function get_instance( $connection_id ) {
 		global $wpdb;

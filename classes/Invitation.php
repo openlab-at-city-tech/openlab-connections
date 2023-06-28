@@ -532,7 +532,7 @@ class Invitation {
 		$inviter = get_userdata( $this->get_inviter_user_id() );
 
 		if ( ! $inviter ) {
-			return;
+			return false;
 		}
 
 		$invitee_group = groups_get_group( $this->get_invitee_group_id() );
@@ -550,7 +550,7 @@ class Invitation {
 
 		$sent = bp_send_email(
 			'openlab-connection-invitation-accepted',
-			$inviter_data->user_email,
+			$inviter->user_email,
 			$email_args
 		);
 

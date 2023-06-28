@@ -267,7 +267,7 @@ class Frontend {
 
 		$redirect_url = bp_get_group_permalink( groups_get_current_group() ) . 'connections/invitations/';
 
-		if ( $accepted ) {
+		if ( $rejected ) {
 			bp_core_add_message( 'You have successfully rejected the invitation.', 'success' );
 		} else {
 			bp_core_add_message( 'The invitation could not be rejected.', 'error' );
