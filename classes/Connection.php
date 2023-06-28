@@ -9,6 +9,8 @@ namespace OpenLab\Connections;
 
 /**
  * Connection object.
+ *
+ * @package openlab-connections
  */
 class Connection {
 	/**
@@ -38,6 +40,15 @@ class Connection {
 	 * @var string
 	 */
 	protected $date_created = '0000-00-00 00:00:00';
+
+	/**
+	 * Gets the connection ID for this connection.
+	 *
+	 * @return int
+	 */
+	public function get_connection_id() {
+		return (int) $this->connection_id;
+	}
 
 	/**
 	 * Sets the connection ID for this connection.
@@ -77,15 +88,6 @@ class Connection {
 	 */
 	public function set_date_created( $date_created ) {
 		$this->date_created = $date_created;
-	}
-
-	/**
-	 * Gets the connection ID for this connection.
-	 *
-	 * @return int
-	 */
-	public function get_connection_id() {
-		return (int) $this->connection_id;
 	}
 
 	/**
@@ -142,6 +144,8 @@ class Connection {
 			}
 		}
 
+		wp_cache_delete( $this->connection_id, 'openlab_connections' );
+
 		return $retval;
 	}
 
@@ -162,12 +166,18 @@ class Connection {
 	 * Retrieves a connection instance based on the connection ID.
 	 *
 	 * @param int $connection_id Connection ID.
+	 *
 	 * @return null|\OpenLab\Connections\Connection
 	 */
 	public static function get_instance( $connection_id ) {
 		global $wpdb;
 
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %s WHERE connection_id = %d", self::get_table_name(), $connection_id ) );
+		$cached = wp_cache_get( $connection_id, 'openlab_connections' );
+		if ( false !== $cached && is_object( $cached ) ) {
+			$row = $cached;
+		} else {
+			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %s WHERE connection_id = %d", self::get_table_name(), $connection_id ) );
+		}
 
 		if ( ! $row ) {
 			return null;
@@ -205,6 +215,8 @@ class Connection {
 				'%d',
 			]
 		);
+
+		wp_cache_delete( $this->connection_id, 'openlab_connections' );
 
 		return (bool) $result;
 	}
