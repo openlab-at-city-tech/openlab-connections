@@ -102,6 +102,7 @@ class Connection {
 
 		$retval = false;
 		if ( $this->connection_id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$updated = $wpdb->update(
 				$table_name,
 				[
@@ -124,6 +125,7 @@ class Connection {
 
 			$retval = (bool) $updated;
 		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$inserted = $wpdb->insert(
 				$table_name,
 				[
@@ -176,7 +178,8 @@ class Connection {
 		if ( false !== $cached && is_object( $cached ) ) {
 			$row = $cached;
 		} else {
-			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %s WHERE connection_id = %d", self::get_table_name(), $connection_id ) );
+			// phpcs:ignore WordPress.DB
+			$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %s WHERE connection_id = %d', self::get_table_name(), $connection_id ) );
 		}
 
 		if ( ! $row ) {
@@ -206,6 +209,7 @@ class Connection {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$result = $wpdb->delete(
 			$table_name,
 			[
