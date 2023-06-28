@@ -96,18 +96,29 @@ class Schema {
 	 *
 	 * @return void
 	 */
-	public static function openlab_create_connection_emails() {
+	public static function create_emails() {
 		$emails = [
 			[
 				'type'      => 'openlab-connection-invitation',
 				'subject'   => 'Your group {{{ol.invitee-group-name}}} has received a connection invitation from {{{ol.inviter-group-name}}}',
 				'content'   => 'Your group <a href="{{{ol.invitee-group-url}}}">{{{ol.invitee-group-name}}}</a> has received a connection invitation from <a href="{{{ol.inviter-group-url}}}">{{{ol.inviter-group-name}}}</a>.
 
-	<a href="{{{ol.manage-invites-url}}}">Accept or manage your connection invitations</a>',
+<a href="{{{ol.manage-invites-url}}}">Accept or manage your connection invitations</a>',
 				'plaintext' => 'Your group {{{ol.invitee-group-name}}} has received a connection invitation from {{{ol.inviter-group-name}}} ( {{{ol.inviter-group-url}}} ).
 
-	Accept or manage your connection invitations: {{{ol.manage-invites-url}}}',
+Accept or manage your connection invitations: {{{ol.manage-invites-url}}}',
 				'desc'      => 'A group is invited to a connection.',
+			],
+			[
+				'type'      => 'openlab-connection-invitation-accepted',
+				'subject'   => 'Your connection invitation for {{{ol.invitee-group-name}}} has been accepted',
+				'content'   => 'Your connection invitation for <a href="{{{ol.invitee-group-url}}}">{{{ol.invitee-group-name}}}</a> has been accepted.
+
+<a href="{{{ol.manage-url}}}">Manage your connections</a>',
+				'plaintext' => 'Your connection invitation for {{{ol.invitee-group-name}}} has been accepted.
+
+Manage your connections: {{{ol.manage-url}}}',
+				'desc'      => 'A connection invitation is accepted.',
 			],
 		];
 

@@ -88,6 +88,15 @@ class Invitation {
 	}
 
 	/**
+	 * Gets the inviter user ID for this invitation.
+	 *
+	 * @return int
+	 */
+	public function get_inviter_user_id() {
+		return (int) $this->inviter_user_id;
+	}
+
+	/**
 	 * Gets the date created for this invitation.
 	 *
 	 * @return string
@@ -270,6 +279,55 @@ class Invitation {
 	}
 
 	/**
+	 * Gets the URL for the Accept action.
+	 *
+	 * @return string
+	 */
+	public function get_accept_url() {
+		$group = groups_get_group( $this->get_invitee_group_id() );
+		$base  = bp_get_group_permalink( $group ) . 'connections/invitations';
+		return add_query_arg( 'accept-invitation', $this->get_invitation_id(), $base );
+	}
+
+	/**
+	 * Gets the URL for the Reject action.
+	 *
+	 * @return string
+	 */
+	public function get_reject_url() {
+		$group = groups_get_group( $this->get_invitee_group_id() );
+		$base  = bp_get_group_permalink( $group ) . 'connections/invitations';
+		return add_query_arg( 'reject-invitation', $this->get_invitation_id(), $base );
+	}
+
+	/**
+	 * Accepts an invitation.
+	 *
+	 * Marks the invitation as accepted, and handles the creation of a connection.
+	 *
+	 * @return bool
+	 */
+	public function accept() {
+		$current_time = current_time( 'mysql' );
+
+		$connection = new Connection();
+		$connection->set_group_1_id( $this->get_invitee_group_id() );
+		$connection->set_group_2_id( $this->get_inviter_group_id() );
+		$connection->set_date_created( $current_time );
+
+		$saved = $connection->save();
+
+		if ( ! $saved ) {
+			return false;
+		}
+
+		$this->date_accepted = $current_time;
+		$this->connection_id = $connection->get_connection_id();
+
+		return $this->save();
+	}
+
+	/**
 	 * Gets the table name for the invitations table.
 	 *
 	 * @return string
@@ -442,5 +500,39 @@ class Invitation {
 		}
 
 		return $retval;
+	}
+
+	/**
+	 * Sends notifications to inviter when an invitation is accepted.
+	 *
+	 * @return bool
+	 */
+	public function send_accepted_notification() {
+		$inviter = get_userdata( $this->get_inviter_user_id() );
+
+		if ( ! $inviter ) {
+			return;
+		}
+
+		$invitee_group = groups_get_group( $this->get_invitee_group_id() );
+		$inviter_group = groups_get_group( $this->get_inviter_group_id() );
+
+		$email_args = [
+			'tokens' => array(
+				'ol.invitee-group-name' => stripslashes( $invitee_group->name ),
+				'ol.invitee-group-url'  => bp_get_group_permalink( $invitee_group ),
+				'ol.inviter-group-name' => stripslashes( $inviter_group->name ),
+				'ol.inviter-group-url'  => bp_get_group_permalink( $inviter_group ),
+				'ol.manage-url'         => bp_get_group_permalink( $invitee_group ) . 'connections/',
+			),
+		];
+
+		$sent = bp_send_email(
+			'openlab-connection-invitation-accepted',
+			$inviter_data->user_email,
+			$email_args
+		);
+
+		return $sent;
 	}
 }

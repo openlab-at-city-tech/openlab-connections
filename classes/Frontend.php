@@ -43,6 +43,8 @@ class Frontend {
 
 		add_action( 'bp_actions', [ $this, 'process_invitation_request' ] );
 		add_action( 'bp_actions', [ $this, 'process_invitation_delete_request' ] );
+		add_action( 'bp_actions', [ $this, 'process_invitation_accept_request' ] );
+		add_action( 'bp_actions', [ $this, 'process_invitation_reject_request' ] );
 
 		add_action( 'wp_ajax_openlab_connection_group_search', [ $this, 'process_group_search_ajax' ] );
 	}
@@ -189,6 +191,55 @@ class Frontend {
 		}
 
 		bp_core_redirect( $redirect_url );
+	}
+
+	/**
+	 * Processes an invitation accept request.
+	 *
+	 * @return void
+	 */
+	public function process_invitation_accept_request() {
+		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || ! bp_is_action_variable( 0, 'invitations' ) ) {
+			return;
+		}
+
+		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
+			return;
+		}
+
+		if ( empty( $_GET['accept-invitation'] ) ) {
+			return;
+		}
+
+		$invitation_id = (int) $_GET['accept-invitation'];
+
+		check_admin_referer( 'accept-invitation-' . $invitation_id );
+
+		$invitation = Invitation::get_instance( $invitation_id );
+		if ( ! $invitation ) {
+			return;
+		}
+
+		$accepted = $invitation->accept();
+
+		$redirect_url = bp_get_group_permalink( groups_get_current_group() ) . 'connections/invitations/';
+
+		if ( $accepted ) {
+			$invitation->send_accepted_notification();
+			bp_core_add_message( 'You have successfully accepted the invitation.', 'success' );
+		} else {
+			bp_core_add_message( 'The invitation could not be accepted.', 'error' );
+		}
+
+		bp_core_redirect( $redirect_url );
+	}
+
+	/**
+	 * Processes an invitation rejection request.
+	 *
+	 * @return void
+	 */
+	public function process_invitation_reject_request() {
 	}
 
 	/**
