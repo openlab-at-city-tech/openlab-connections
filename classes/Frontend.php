@@ -150,7 +150,9 @@ class Frontend {
 			bp_core_add_message( $messages );
 		}
 
-		bp_core_redirect( wp_get_referer() );
+		$redirect_url = bp_get_group_permalink( groups_get_current_group() ) . 'connections/new/';
+
+		bp_core_redirect( $redirect_url );
 	}
 
 	/**
