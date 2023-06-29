@@ -113,4 +113,40 @@ class Util {
 
 		return $retval;
 	}
+
+	/**
+	 * Fetches a list of taxonomy terms from a site.
+	 *
+	 * @param string $site_url URL of the site.
+	 * @param string $taxonomy Taxonomy name. 'post_tag' or 'taxonomy'.
+	 * @return mixed[]
+	 */
+	public static function fetch_taxonomy_terms_for_site( $site_url, $taxonomy ) {
+		$tax_slug = 'post_tag' === $taxonomy ? 'tags' : 'categories';
+
+		$request_url = trailingslashit( $site_url ) . 'wp-json/wp/v2/' . $tax_slug;
+
+		// Make the request using wp_remote_get() function.
+		$response = wp_remote_get( $request_url );
+
+		if ( is_wp_error( $response ) ) {
+			// Request failed, return the error.
+			return [];
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
+
+		if ( 200 !== $response_code ) {
+			return [];
+		}
+
+		$categories = json_decode( $response_body, true );
+
+		if ( is_array( $categories ) ) {
+			return $categories;
+		}
+
+		return [];
+	}
 }

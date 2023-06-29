@@ -47,6 +47,7 @@ class Frontend {
 		add_action( 'bp_actions', [ $this, 'process_invitation_reject_request' ] );
 
 		add_action( 'wp_ajax_openlab_connection_group_search', [ $this, 'process_group_search_ajax' ] );
+		add_action( 'wp_ajax_openlab_connections_save_connection_settings', [ $this, 'process_save_connection_settings' ] );
 	}
 
 	/**
@@ -328,6 +329,72 @@ class Frontend {
 		}
 
 		echo wp_json_encode( $retval );
+		die;
+	}
+
+	/**
+	 * AJAX handler for saving connection settings.
+	 *
+	 * @return void
+	 */
+	public function process_save_connection_settings() {
+		global $wpdb;
+
+		if ( ! isset( $_POST['nonce'] ) || ! isset( $_POST['connectionId'] ) || ! isset( $_POST['groupId'] ) ) {
+			return;
+		}
+
+		$connection_id = (int) $_POST['connectionId'];
+
+		check_admin_referer( 'connection-settings-' . $connection_id, 'nonce' );
+
+		$group_id = (int) $_POST['groupId'];
+		if ( ! Util::user_can_initiate_group_connections( get_current_user_id(), $group_id ) ) {
+			return;
+		}
+
+		$settings = [
+			'content_types' => [],
+			'post_taxes'    => [
+				'category' => 'all',
+				'post_tag' => 'all',
+			],
+		];
+
+		if ( isset( $_POST['postToggle'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['postToggle'] ) ) ) {
+			$settings['content_types'][] = 'post';
+		}
+
+		if ( isset( $_POST['commentToggle'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['commentToggle'] ) ) ) {
+			$settings['content_types'][] = 'comment';
+		}
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$posted_categories   = isset( $_POST['selectedPostCategories'] ) ? map_deep( 'sanitize_text_field', wp_unslash( $_POST['selectedPostCategories'] ) ) : [];
+		$selected_categories = [];
+		if ( is_array( $posted_categories ) ) {
+			if ( in_array( '_all', $posted_categories, true ) ) {
+				$selected_categories = 'all';
+			} else {
+				$selected_categories = array_map( 'intval', $posted_categories );
+			}
+		}
+		$settings['post_taxes']['category'] = $selected_categories;
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$posted_tags   = isset( $_POST['selectedPostTags'] ) ? map_deep( 'sanitize_text_field', wp_unslash( $_POST['selectedPostTags'] ) ) : [];
+		$selected_tags = [];
+		if ( is_array( $posted_tags ) ) {
+			if ( in_array( '_all', $posted_tags, true ) ) {
+				$selected_tags = 'all';
+			} else {
+				$selected_tags = array_map( 'intval', $posted_tags );
+			}
+		}
+		$settings['post_taxes']['post_tag'] = $selected_tags;
+
+		$saved = groups_update_groupmeta( $group_id, 'connection_settings_' . $connection_id, $settings );
+
 		die;
 	}
 }

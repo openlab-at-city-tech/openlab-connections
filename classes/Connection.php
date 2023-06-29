@@ -51,6 +51,20 @@ class Connection {
 	}
 
 	/**
+	 * Gets the IDs of the groups in the connection.
+	 *
+	 * This is a convenience class, since usually we don't care which group is 1 and which is 2.
+	 *
+	 * @return int[]
+	 */
+	public function get_group_ids() {
+		return [
+			$this->group_1_id,
+			$this->group_2_id,
+		];
+	}
+
+	/**
 	 * Sets the connection ID for this connection.
 	 *
 	 * @param int $connection_id Connection ID.
@@ -179,7 +193,7 @@ class Connection {
 			$row = $cached;
 		} else {
 			// phpcs:ignore WordPress.DB
-			$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %s WHERE connection_id = %d', self::get_table_name(), $connection_id ) );
+			$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE connection_id = %d', self::get_table_name(), $connection_id ) );
 		}
 
 		if ( ! $row ) {
@@ -223,5 +237,83 @@ class Connection {
 		wp_cache_delete( $this->connection_id, 'openlab_connections' );
 
 		return (bool) $result;
+	}
+
+	/**
+	 * Gets the connection settings for one of the groups in the connection.
+	 *
+	 * @param int $group_id ID of the group whose settings are being fetched.
+	 * @return mixed[]
+	 */
+	public function get_group_settings( $group_id ) {
+		$saved = groups_get_groupmeta( $group_id, 'connection_settings_' . $this->get_connection_id(), true );
+
+		if ( ! $saved ) {
+			$saved = [];
+		}
+
+		$settings = array_merge(
+			[
+				'content_types' => [],
+				'post_taxes'    => [
+					'category' => 'all',
+					'post_tag' => 'all',
+				],
+			],
+			$saved
+		);
+
+		return $settings;
+	}
+
+	/**
+	 * Fetches connections based on parameters.
+	 *
+	 * @param mixed[] $args {
+	 *   Array of optional query arguments.
+	 *   @var int|int[] $group_id Limit to connections involving one or more group IDs.
+	 * }
+	 * @return \OpenLab\Connections\Connection[]
+	 */
+	public static function get( $args = [] ) {
+		global $wpdb;
+
+		$r = array_merge(
+			[
+				'group_id' => null,
+			],
+			$args
+		);
+
+		$table_name = self::get_table_name();
+
+		$sql = [
+			// phpcs:ignore WordPress.DB
+			'select' => $wpdb->prepare( 'SELECT connection_id FROM %i', $table_name ),
+			'where'  => [],
+		];
+
+		if ( $r['group_id'] ) {
+			$group_ids    = (array) $r['group_id'];
+			$placeholders = implode( ',', array_fill( 0, count( $group_ids ), '%d' ) );
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$prepared_placeholders    = $wpdb->prepare( $placeholders, $group_ids );
+			$sql['where']['group_id'] = "(group_1_id IN ({$prepared_placeholders}) OR group_2_id IN ({$prepared_placeholders}))";
+		}
+
+		$sql_statement = "{$sql['select']} WHERE " . implode( ' AND ', $sql['where'] );
+
+		// phpcs:ignore WordPress.DB
+		$connection_ids = $wpdb->get_col( $sql_statement );
+
+		$connections = array_map(
+			function( $connection_id ) {
+				return self::get_instance( $connection_id );
+			},
+			$connection_ids
+		);
+
+		return array_filter( $connections );
 	}
 }
