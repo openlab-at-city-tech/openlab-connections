@@ -370,7 +370,7 @@ class Frontend {
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$posted_categories   = isset( $_POST['selectedPostCategories'] ) ? map_deep( 'sanitize_text_field', wp_unslash( $_POST['selectedPostCategories'] ) ) : [];
+		$posted_categories   = isset( $_POST['selectedPostCategories'] ) ? wp_unslash( $_POST['selectedPostCategories'] ) : [];
 		$selected_categories = [];
 		if ( is_array( $posted_categories ) ) {
 			if ( in_array( '_all', $posted_categories, true ) ) {
@@ -382,7 +382,7 @@ class Frontend {
 		$settings['post_taxes']['category'] = $selected_categories;
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$posted_tags   = isset( $_POST['selectedPostTags'] ) ? map_deep( 'sanitize_text_field', wp_unslash( $_POST['selectedPostTags'] ) ) : [];
+		$posted_tags   = isset( $_POST['selectedPostTags'] ) ? wp_unslash( $_POST['selectedPostTags'] ) : [];
 		$selected_tags = [];
 		if ( is_array( $posted_tags ) ) {
 			if ( in_array( '_all', $posted_tags, true ) ) {
