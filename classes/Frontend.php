@@ -46,6 +46,8 @@ class Frontend {
 		add_action( 'bp_actions', [ $this, 'process_invitation_accept_request' ] );
 		add_action( 'bp_actions', [ $this, 'process_invitation_reject_request' ] );
 
+		add_action( 'bp_actions', [ $this, 'process_disconnect_request' ] );
+
 		add_action( 'wp_ajax_openlab_connection_group_search', [ $this, 'process_group_search_ajax' ] );
 		add_action( 'wp_ajax_openlab_connections_save_connection_settings', [ $this, 'process_save_connection_settings' ] );
 	}
@@ -272,6 +274,46 @@ class Frontend {
 			bp_core_add_message( 'You have successfully rejected the invitation.', 'success' );
 		} else {
 			bp_core_add_message( 'The invitation could not be rejected.', 'error' );
+		}
+
+		bp_core_redirect( $redirect_url );
+	}
+
+	/**
+	 * Processes a disconnect request.
+	 *
+	 * @return void
+	 */
+	public function process_disconnect_request() {
+		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || bp_action_variable( 0 ) ) {
+			return;
+		}
+
+		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
+			return;
+		}
+
+		if ( empty( $_GET['disconnect'] ) ) {
+			return;
+		}
+
+		$connection_id = (int) $_GET['disconnect'];
+
+		check_admin_referer( 'disconnect-' . $connection_id );
+
+		$connection = Connection::get_instance( $connection_id );
+		if ( ! $connection ) {
+			return;
+		}
+
+		$deleted = $connection->delete();
+
+		$redirect_url = bp_get_group_permalink( groups_get_current_group() ) . 'connections/';
+
+		if ( $deleted ) {
+			bp_core_add_message( 'You have successfully disconnected.', 'success' );
+		} else {
+			bp_core_add_message( 'The disconnection could not be processed.', 'error' );
 		}
 
 		bp_core_redirect( $redirect_url );

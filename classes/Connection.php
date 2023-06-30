@@ -267,6 +267,18 @@ class Connection {
 	}
 
 	/**
+	 * Gets the Disconnect URL for this connection, relative to a specific group.
+	 *
+	 * @param int $group_id ID of the group initiating the disconnect.
+	 * @return string
+	 */
+	public function get_disconnect_url( $group_id ) {
+		$group = groups_get_group( $group_id );
+		$base  = bp_get_group_permalink( $group ) . 'connections/';
+		return add_query_arg( 'disconnect', $this->get_connection_id(), $base );
+	}
+
+	/**
 	 * Fetches connections based on parameters.
 	 *
 	 * @param mixed[] $args {
