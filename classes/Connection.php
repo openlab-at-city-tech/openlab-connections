@@ -267,11 +267,23 @@ class Connection {
 	}
 
 	/**
+	 * Gets the Disconnect URL for this connection, relative to a specific group.
+	 *
+	 * @param int $group_id ID of the group initiating the disconnect.
+	 * @return string
+	 */
+	public function get_disconnect_url( $group_id ) {
+		$group = groups_get_group( $group_id );
+		$base  = bp_get_group_permalink( $group ) . 'connections/';
+		return add_query_arg( 'disconnect', $this->get_connection_id(), $base );
+	}
+
+	/**
 	 * Fetches connections based on parameters.
 	 *
 	 * @param mixed[] $args {
 	 *   Array of optional query arguments.
-	 *   @var int|int[] $group_id Limit to connections involving one or more group IDs.
+	 *   @var int $group_id Limit to connections involving a specific group ID.
 	 * }
 	 * @return \OpenLab\Connections\Connection[]
 	 */
@@ -294,12 +306,7 @@ class Connection {
 		];
 
 		if ( $r['group_id'] ) {
-			$group_ids    = (array) $r['group_id'];
-			$placeholders = implode( ',', array_fill( 0, count( $group_ids ), '%d' ) );
-
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$prepared_placeholders    = $wpdb->prepare( $placeholders, $group_ids );
-			$sql['where']['group_id'] = "(group_1_id IN ({$prepared_placeholders}) OR group_2_id IN ({$prepared_placeholders}))";
+			$sql['where']['group_id'] = $wpdb->prepare( '(group_1_id = %d OR group_2_id = %d)', $r['group_id'], $r['group_id'] );
 		}
 
 		$sql_statement = "{$sql['select']} WHERE " . implode( ' AND ', $sql['where'] );
@@ -314,6 +321,42 @@ class Connection {
 			$connection_ids
 		);
 
-		return array_filter( $connections );
+		$connections = array_filter( $connections );
+
+		// Sort by group name.
+		// Group names are pulled from the cache, though we may consider priming this in the future.
+		if ( is_numeric( $r['group_id'] ) ) {
+			$group_id = (int) $r['group_id'];
+
+			usort(
+				$connections,
+				function( $connection_a, $connection_b ) use ( $group_id ) {
+					$connection_a_group_ids = $connection_a->get_group_ids();
+					$connection_b_group_ids = $connection_b->get_group_ids();
+
+					$other_group_name_a = '';
+					foreach ( $connection_a_group_ids as $connection_a_group_id ) {
+						if ( $connection_a_group_id !== $group_id ) {
+							$other_group_a      = groups_get_group( $connection_a_group_id );
+							$other_group_name_a = $other_group_a->name;
+							break;
+						}
+					}
+
+					$other_group_name_b = '';
+					foreach ( $connection_b_group_ids as $connection_b_group_id ) {
+						if ( $connection_b_group_id !== $group_id ) {
+							$other_group_b      = groups_get_group( $connection_b_group_id );
+							$other_group_name_b = $other_group_b->name;
+							break;
+						}
+					}
+
+					return strcmp( $other_group_name_a, $other_group_name_b );
+				}
+			);
+		}
+
+		return $connections;
 	}
 }

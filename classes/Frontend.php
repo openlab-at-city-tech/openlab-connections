@@ -41,10 +41,14 @@ class Frontend {
 	public function init() {
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_assets' ] );
 
+		add_action( 'bp_group_options_nav', [ $this, 'group_sidebar' ], 15 );
+
 		add_action( 'bp_actions', [ $this, 'process_invitation_request' ] );
 		add_action( 'bp_actions', [ $this, 'process_invitation_delete_request' ] );
 		add_action( 'bp_actions', [ $this, 'process_invitation_accept_request' ] );
 		add_action( 'bp_actions', [ $this, 'process_invitation_reject_request' ] );
+
+		add_action( 'bp_actions', [ $this, 'process_disconnect_request' ] );
 
 		add_action( 'wp_ajax_openlab_connection_group_search', [ $this, 'process_group_search_ajax' ] );
 		add_action( 'wp_ajax_openlab_connections_save_connection_settings', [ $this, 'process_save_connection_settings' ] );
@@ -95,6 +99,68 @@ class Frontend {
 			$build_asset_file['version'],
 			true
 		);
+	}
+
+	/**
+	 * Adds the Connections list to group sidebars.
+	 *
+	 * @return void
+	 */
+	public function group_sidebar() {
+		if ( ! Util::is_connections_enabled_for_group() ) {
+			return;
+		}
+
+		// Non-public groups shouldn't show this to non-members.
+		$group = groups_get_current_group();
+		if ( 'public' !== $group->status && empty( $group->user_has_access ) ) {
+			return;
+		}
+
+		$connections = Connection::get(
+			[
+				'group_id' => bp_get_current_group_id(),
+			]
+		);
+
+		// No connections to display.
+		if ( empty( $connections ) ) {
+			return;
+		}
+
+		?>
+
+		<div class="group-connections-sidebar-widget" id="group-connections-sidebar-widget" class="sidebar-widget">
+			<h2 class="sidebar-header">
+				<span><?php esc_html_e( 'Connections', 'openlab-connections' ); ?></span>
+				<i class="fa fa-rss connections-icon"></i>
+			</h2>
+
+			<div class="sidebar-block">
+				<ul class="group-connection-list sidebar-sublinks inline-element-list group-data-list">
+					<?php foreach ( $connections as $connection ) : ?>
+						<?php
+
+						$connected_group_id  = null;
+						$connected_group_ids = $connection->get_group_ids();
+						foreach ( $connected_group_ids as $check_group_id ) {
+							if ( bp_get_current_group_id() !== $check_group_id ) {
+								$connected_group_id = $check_group_id;
+								break;
+							}
+						}
+
+						$connected_group = groups_get_group( $connected_group_id );
+
+						?>
+
+						<li><a href="<?php echo esc_url( bp_get_group_permalink( $connected_group ) ); ?>"><?php echo esc_html( $connected_group->name ); ?></a></li>
+					<?php endforeach ?>
+				</ul>
+			</div>
+		</div>
+
+		<?php
 	}
 
 	/**
@@ -272,6 +338,46 @@ class Frontend {
 			bp_core_add_message( 'You have successfully rejected the invitation.', 'success' );
 		} else {
 			bp_core_add_message( 'The invitation could not be rejected.', 'error' );
+		}
+
+		bp_core_redirect( $redirect_url );
+	}
+
+	/**
+	 * Processes a disconnect request.
+	 *
+	 * @return void
+	 */
+	public function process_disconnect_request() {
+		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || bp_action_variable( 0 ) ) {
+			return;
+		}
+
+		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
+			return;
+		}
+
+		if ( empty( $_GET['disconnect'] ) ) {
+			return;
+		}
+
+		$connection_id = (int) $_GET['disconnect'];
+
+		check_admin_referer( 'disconnect-' . $connection_id );
+
+		$connection = Connection::get_instance( $connection_id );
+		if ( ! $connection ) {
+			return;
+		}
+
+		$deleted = $connection->delete();
+
+		$redirect_url = bp_get_group_permalink( groups_get_current_group() ) . 'connections/';
+
+		if ( $deleted ) {
+			bp_core_add_message( 'You have successfully disconnected.', 'success' );
+		} else {
+			bp_core_add_message( 'The disconnection could not be processed.', 'error' );
 		}
 
 		bp_core_redirect( $redirect_url );
