@@ -114,7 +114,7 @@ class Frontend {
 		// Non-public groups shouldn't show this to non-members.
 		$group = groups_get_current_group();
 		if ( 'public' !== $group->status && empty( $group->user_has_access ) ) {
-			return false;
+			return;
 		}
 
 		$connections = Connection::get(
@@ -144,7 +144,7 @@ class Frontend {
 						$connected_group_id  = null;
 						$connected_group_ids = $connection->get_group_ids();
 						foreach ( $connected_group_ids as $check_group_id ) {
-							if ( $check_group_id !== bp_get_current_group_id() ) {
+							if ( bp_get_current_group_id() !== $check_group_id ) {
 								$connected_group_id = $check_group_id;
 								break;
 							}
@@ -154,7 +154,7 @@ class Frontend {
 
 						?>
 
-						<li><a href="<?php echo bp_get_group_permalink( $connected_group ); ?>"><?php echo esc_html( $connected_group->name ); ?></a></li>
+						<li><a href="<?php echo esc_url( bp_get_group_permalink( $connected_group ) ); ?>"><?php echo esc_html( $connected_group->name ); ?></a></li>
 					<?php endforeach ?>
 				</ul>
 			</div>

@@ -321,9 +321,11 @@ class Connection {
 			$connection_ids
 		);
 
+		$connections = array_filter( $connections );
+
 		// Sort by group name.
 		// Group names are pulled from the cache, though we may consider priming this in the future.
-		if ( $r['group_id'] ) {
+		if ( is_numeric( $r['group_id'] ) ) {
 			$group_id = (int) $r['group_id'];
 
 			usort(
@@ -355,6 +357,6 @@ class Connection {
 			);
 		}
 
-		return array_filter( $connections );
+		return $connections;
 	}
 }
