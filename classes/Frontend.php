@@ -133,7 +133,7 @@ class Frontend {
 		<div class="group-connections-sidebar-widget" id="group-connections-sidebar-widget" class="sidebar-widget">
 			<h2 class="sidebar-header">
 				<span><?php esc_html_e( 'Connections', 'openlab-connections' ); ?></span>
-				<i class="fa fa-rss"></i>
+				<i class="fa fa-rss connections-icon"></i>
 			</h2>
 
 			<div class="sidebar-block">
