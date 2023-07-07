@@ -306,7 +306,7 @@ class Connection {
 		];
 
 		if ( $r['group_id'] ) {
-			$sql['where']['group_id'] = $wpdb->prepare( "(group_1_id = %d OR group_2_id = %d)", $r['group_id'], $r['group_id'] );
+			$sql['where']['group_id'] = $wpdb->prepare( '(group_1_id = %d OR group_2_id = %d)', $r['group_id'], $r['group_id'] );
 		}
 
 		$sql_statement = "{$sql['select']} WHERE " . implode( ' AND ', $sql['where'] );
