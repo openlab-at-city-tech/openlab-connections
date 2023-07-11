@@ -25,18 +25,18 @@ class Util {
 		}
 
 		// Default to false in case no value is found.
-		if ( ! $group_id ) {
+		if ( ! $group_id && ! bp_is_group_create() ) {
 			return false;
 		}
 
-		$is_disabled = groups_get_groupmeta( $group_id, 'openlab_connections_disabled' );
-
-		// Empty value should default to disabled for portfolios.
-		if ( '' === $is_disabled && openlab_is_portfolio( $group_id ) ) {
-			$is_disabled = true;
+		if ( bp_is_group_create() ) {
+			$is_portfolio = isset( $_GET['type'] ) && 'portfolio' === sanitize_text_field( wp_unslash( $_GET['type'] ) );
+			$is_enabled   = ! $is_portfolio;
+		} else {
+			$is_enabled = (bool) groups_get_groupmeta( $group_id, 'openlab_connections_enabled' );
 		}
 
-		return empty( $is_disabled );
+		return $is_enabled;
 	}
 
 	/**
