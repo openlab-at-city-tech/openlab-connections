@@ -18,10 +18,7 @@ parameters:
 
   ignoreErrors:
     - # Can't easily scan BP
-      message: '#Function (bp_action_variable|bp_core_add_message|bp_core_redirect|bp_get_current_group_id|bp_get_email_post_type|bp_get_email_tax_type|bp_get_group_avatar|bp_get_group_permalink|bp_get_groups_directory_permalink|bp_get_template_part|bp_is_action_variable|bp_is_current_action|bp_is_group|bp_loggedin_user_id|bp_register_group_extension|bp_send_email|groups_get_current_group|groups_get_group|groups_get_group_admins|groups_get_groupmeta|groups_get_groups|groups_get_id|groups_is_user_admin|groups_update_groupmeta) not found.#'
-
-    - # From OL
-      message: '#Function openlab_is_portfolio not found.#'
+      message: '#Function (bp_action_variable|bp_core_add_message|bp_core_redirect|bp_get_current_group_id|bp_get_email_post_type|bp_get_email_tax_type|bp_get_group_avatar|bp_get_group_permalink|bp_get_groups_directory_permalink|bp_get_template_part|bp_is_action_variable|bp_is_current_action|bp_is_group|bp_is_group_create|bp_loggedin_user_id|bp_register_group_extension|bp_send_email|groups_get_current_group|groups_get_group|groups_get_group_admins|groups_get_groupmeta|groups_get_groups|groups_get_id|groups_is_user_admin|groups_update_groupmeta) not found.#'
 
     - # Trying to work with PHPStan and also WP's doc standards
       message: '#PHPDoc tag @var above a method has no effect.#'

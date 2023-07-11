@@ -30,6 +30,7 @@ class Util {
 		}
 
 		if ( bp_is_group_create() ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$is_portfolio = isset( $_GET['type'] ) && 'portfolio' === sanitize_text_field( wp_unslash( $_GET['type'] ) );
 			$is_enabled   = ! $is_portfolio;
 		} else {
