@@ -254,11 +254,8 @@ class Connection {
 
 		$settings = array_merge(
 			[
-				'content_types' => [],
-				'post_taxes'    => [
-					'category' => 'all',
-					'post_tag' => 'all',
-				],
+				'categories'       => 'all',
+				'exclude_comments' => false,
 			],
 			$saved
 		);

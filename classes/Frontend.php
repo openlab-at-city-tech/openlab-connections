@@ -199,7 +199,7 @@ class Frontend {
 			$group = groups_get_group( $group_id );
 
 			if ( $retval['success'] ) {
-				$messages .= sprintf( 'Successfully sent invitation to the group "%s".' . "\n", $group->name );
+				$messages .= sprintf( 'Successfully sent invitation for the group "%s".' . "\n", $group->name );
 			} else {
 				switch ( $retval['status'] ) {
 					case 'invitation_exists' :
@@ -207,7 +207,7 @@ class Frontend {
 						break;
 
 					default :
-						$messages .= sprintf( 'Could not send invitation to the group "%s".' . "\n", $group->name );
+						$messages .= sprintf( 'Could not send invitation for the group "%s".' . "\n", $group->name );
 						break;
 				}
 			}
@@ -460,20 +460,9 @@ class Frontend {
 		}
 
 		$settings = [
-			'content_types' => [],
-			'post_taxes'    => [
-				'category' => 'all',
-				'post_tag' => 'all',
-			],
+			'categories'       => [],
+			'exclude_comments' => false,
 		];
-
-		if ( isset( $_POST['postToggle'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['postToggle'] ) ) ) {
-			$settings['content_types'][] = 'post';
-		}
-
-		if ( isset( $_POST['commentToggle'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['commentToggle'] ) ) ) {
-			$settings['content_types'][] = 'comment';
-		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$posted_categories   = isset( $_POST['selectedPostCategories'] ) ? wp_unslash( $_POST['selectedPostCategories'] ) : [];
@@ -485,19 +474,9 @@ class Frontend {
 				$selected_categories = array_map( 'intval', $posted_categories );
 			}
 		}
-		$settings['post_taxes']['category'] = $selected_categories;
+		$settings['categories'] = $selected_categories;
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$posted_tags   = isset( $_POST['selectedPostTags'] ) ? wp_unslash( $_POST['selectedPostTags'] ) : [];
-		$selected_tags = [];
-		if ( is_array( $posted_tags ) ) {
-			if ( in_array( '_all', $posted_tags, true ) ) {
-				$selected_tags = 'all';
-			} else {
-				$selected_tags = array_map( 'intval', $posted_tags );
-			}
-		}
-		$settings['post_taxes']['post_tag'] = $selected_tags;
+		$exclude_comments = ! empty( $_POST['excludeComments'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['excludeComments'] ) );
 
 		$saved = groups_update_groupmeta( $group_id, 'connection_settings_' . $connection_id, $settings );
 
