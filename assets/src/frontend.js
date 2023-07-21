@@ -118,16 +118,17 @@
 
 	// When unchecking None, set Categories to 'All Categories'.
 	$( '.connection-setting-none' ).on( 'change', ( e ) => {
-		if ( e.target.checked ) {
-			return
-		}
-
 		const connectionCategories = $( e.target ).closest( '.connection-settings' ).find( '.connection-tax-term-selector' )
 		if ( ! connectionCategories ) {
 			return
 		}
 
-		connectionCategories.val( [ '_all' ] ).trigger( 'change' );
+		if ( e.target.checked ) {
+			connectionCategories.val( [] ).trigger( 'change' )
+		} else {
+			connectionCategories.val( [ '_all' ] ).trigger( 'change' )
+		}
+
 		processNoneCheckboxes()
 	} )
 
