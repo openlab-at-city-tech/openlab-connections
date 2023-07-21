@@ -199,7 +199,7 @@ class Frontend {
 			$group = groups_get_group( $group_id );
 
 			if ( $retval['success'] ) {
-				$messages .= sprintf( 'Successfully sent invitation to the group "%s".' . "\n", $group->name );
+				$messages .= sprintf( 'Successfully sent invitation for the group "%s".' . "\n", $group->name );
 			} else {
 				switch ( $retval['status'] ) {
 					case 'invitation_exists' :
@@ -207,7 +207,7 @@ class Frontend {
 						break;
 
 					default :
-						$messages .= sprintf( 'Could not send invitation to the group "%s".' . "\n", $group->name );
+						$messages .= sprintf( 'Could not send invitation for the group "%s".' . "\n", $group->name );
 						break;
 				}
 			}
