@@ -50,6 +50,8 @@ class Frontend {
 
 		add_action( 'bp_actions', [ $this, 'process_disconnect_request' ] );
 
+		add_filter( 'bp_after_activity_get_parse_args', [ $this, 'add_activity_scope_support' ] );
+
 		add_action( 'wp_ajax_openlab_connection_group_search', [ $this, 'process_group_search_ajax' ] );
 		add_action( 'wp_ajax_openlab_connections_save_connection_settings', [ $this, 'process_save_connection_settings' ] );
 	}
@@ -481,5 +483,200 @@ class Frontend {
 		$saved = groups_update_groupmeta( $group_id, 'connection_settings_' . $connection_id, $settings );
 
 		die;
+	}
+
+	/**
+	 * Adds support for openlab-connections activity 'scope' values to bp_activity_get().
+	 *
+	 */
+	public function add_activity_scope_support( $args ) {
+		if ( 'connected-groups' !== $args['scope'] && 'this-group-and-connected-groups' !== $args['scope'] ) {
+			return $args;
+		}
+
+		if ( isset( $args['filter']['primary_id'] ) ) {
+			$group_id = (int) $args['filter']['primary_id'];
+		} else {
+			$group_id = bp_get_current_group_id();
+		}
+
+		$passed_activity_types = ! empty( $args['filter']['action'] ) ? $args['filter']['action'] : [];
+		if ( ! is_array( $passed_activity_types ) ) {
+			$passed_activity_types = explode( ',', $passed_activity_types );
+		}
+
+		$allow_new_blog_post    = empty( $passed_activity_types ) || in_array( 'new_blog_post', $passed_activity_types, true );
+		$allow_new_blog_comment = empty( $passed_activity_types ) || in_array( 'new_blog_comment', $passed_activity_types, true );
+
+		$connections = \OpenLab\Connections\Connection::get( [ 'group_id' => $group_id ] );
+
+		$connected_group_clauses = array_map(
+			function( $connection ) use ( $passed_activity_types, $allow_new_blog_post, $allow_new_blog_comment ) {
+				$c_group_ids        = $connection->get_group_ids();
+				$connected_group_id = null;
+				foreach ( $c_group_ids as $c_group_id ) {
+					if ( $c_group_id !== $group_id ) {
+						$connected_group_id = $c_group_id;
+						break;
+					}
+				}
+
+				if ( ! $connected_group_id ) {
+					return [];
+				}
+
+				$connected_group_settings = $connection->get_group_settings( $connected_group_id );
+
+				if ( empty( $connected_group_settings['categories'] ) ) {
+					return [];
+				}
+
+				$limit_to_posts    = [];
+				$limit_to_comments = [];
+				if ( is_array( $connected_group_settings['categories'] ) ) {
+					$group_site_id = openlab_get_site_id_by_group_id( $connected_group_id );
+					if ( $group_site_id ) {
+						switch_to_blog( $group_site_id );
+
+						// Secondary sites don't run taxonomy-terms-order.
+						remove_filter( 'terms_clauses', 'TO_apply_order_filter', 10 );
+
+						$limit_to_posts = get_posts(
+							[
+								'fields'         => 'ids',
+								'posts_per_page' => -1,
+								'tax_query'      => [
+									[
+										'taxonomy' => 'category',
+										'terms'    => $connected_group_settings['categories'],
+										'field'    => 'term_id',
+									]
+								],
+							]
+						);
+
+						if ( ! $limit_to_posts ) {
+							$limit_to_posts = [ 0 ];
+						}
+
+						if ( ! $connected_group_settings['exclude_comments'] && $limit_to_posts ) {
+							$limit_to_comments = get_comments(
+								[
+									'fields'         => 'ids',
+									'posts_per_page' => -1,
+									'post__in'       => $limit_to_posts,
+								]
+							);
+
+							if ( ! $limit_to_comments ) {
+								$limit_to_comments = [ 0 ];
+							}
+						}
+
+						add_filter( 'terms_clauses', 'TO_apply_order_filter', 10, 3 );
+
+						restore_current_blog();
+					}
+				}
+
+				$group_query = [
+					'relation' => 'AND',
+					[
+						'column' => 'component',
+						'value'  => 'groups',
+					],
+					[
+						'column'  => 'item_id',
+						'value'   => [ $connected_group_id ],
+						'compare' => 'IN',
+					],
+				];
+
+				if ( $limit_to_posts || $limit_to_comments ) {
+					$type_query = [
+						'relation' => 'OR',
+					];
+
+					$type_query[] = [
+						[
+							'column' => 'type',
+							'value'  => $allow_new_blog_post ? 'new_blog_post' : '',
+						],
+						[
+							'column'  => 'secondary_item_id',
+							'value'   => $limit_to_posts,
+							'compare' => 'IN',
+						]
+					];
+
+					$type_query[] = [
+						[
+							'column' => 'type',
+							'value'  => $allow_new_blog_comment ? 'new_blog_comment' : '',
+						],
+						[
+							'column'  => 'secondary_item_id',
+							'value'   => $limit_to_comments,
+							'compare' => 'IN',
+						]
+					];
+
+					$group_query[] = $type_query;
+				} else {
+					$activity_types = [ '' ];
+
+					if ( $allow_new_blog_post ) {
+						$activity_types[] = 'new_blog_post';
+					}
+
+					if ( $allow_new_blog_comment && empty( $connected_group_settings['exclude_comments'] ) ) {
+						$activity_types[] = 'new_blog_comment';
+					}
+
+					$group_query[] = [
+						'column'  => 'type',
+						'value'   => $activity_types,
+						'compare' => 'IN',
+					];
+				}
+
+				return $group_query;
+			},
+			$connections
+		);
+
+		$connected_group_clauses = array_filter( $connected_group_clauses );
+
+		if ( 'this-group-and-connected-groups' === $args['scope'] ) {
+			$connected_group_clauses[] = [
+				[
+					'column' => 'component',
+					'value'  => 'groups',
+				],
+				[
+					'column' => 'item_id',
+					'value'  => $group_id,
+				],
+				[
+					'column'  => 'type',
+					'value'   => $passed_activity_types,
+					'compare' => 'IN',
+				]
+			];
+		}
+
+		if ( $connected_group_clauses ) {
+			$connected_group_clauses['relation'] = 'OR';
+			$args['filter_query'] = $connected_group_clauses;
+		} else {
+			$args['in'] = [ 0 ];
+		}
+
+		$args['scope']                = false;
+		$args['primary_id']           = false;
+		$args['filter']['primary_id'] = false;
+		$args['filter']['action']     = false;
+
+		return $args;
 	}
 }
