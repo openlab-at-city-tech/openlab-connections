@@ -488,12 +488,15 @@ class Frontend {
 	/**
 	 * Adds support for openlab-connections activity 'scope' values to bp_activity_get().
 	 *
+	 * @param mixed[] $args Arguments from bp_activity_get().
+	 * @return mixed[]
 	 */
 	public function add_activity_scope_support( $args ) {
 		if ( 'connected-groups' !== $args['scope'] && 'this-group-and-connected-groups' !== $args['scope'] ) {
 			return $args;
 		}
 
+		$group_id = null;
 		if ( isset( $args['filter']['primary_id'] ) ) {
 			$group_id = (int) $args['filter']['primary_id'];
 		} else {
@@ -511,7 +514,7 @@ class Frontend {
 		$connections = \OpenLab\Connections\Connection::get( [ 'group_id' => $group_id ] );
 
 		$connected_group_clauses = array_map(
-			function( $connection ) use ( $passed_activity_types, $allow_new_blog_post, $allow_new_blog_comment ) {
+			function( $connection ) use ( $allow_new_blog_post, $allow_new_blog_comment, $group_id ) {
 				$c_group_ids        = $connection->get_group_ids();
 				$connected_group_id = null;
 				foreach ( $c_group_ids as $c_group_id ) {
@@ -545,21 +548,25 @@ class Frontend {
 							[
 								'fields'         => 'ids',
 								'posts_per_page' => -1,
+
+								// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 								'tax_query'      => [
 									[
 										'taxonomy' => 'category',
 										'terms'    => $connected_group_settings['categories'],
 										'field'    => 'term_id',
-									]
+									],
 								],
 							]
 						);
 
+						$has_limit_to_posts = true;
 						if ( ! $limit_to_posts ) {
-							$limit_to_posts = [ 0 ];
+							$limit_to_posts     = [ 0 ];
+							$has_limit_to_posts = false;
 						}
 
-						if ( ! $connected_group_settings['exclude_comments'] && $limit_to_posts ) {
+						if ( ! $connected_group_settings['exclude_comments'] && $has_limit_to_posts ) {
 							$limit_to_comments = get_comments(
 								[
 									'fields'         => 'ids',
@@ -573,6 +580,7 @@ class Frontend {
 							}
 						}
 
+						// @phpstan-ignore-next-line
 						add_filter( 'terms_clauses', 'TO_apply_order_filter', 10, 3 );
 
 						restore_current_blog();
@@ -606,7 +614,7 @@ class Frontend {
 							'column'  => 'secondary_item_id',
 							'value'   => $limit_to_posts,
 							'compare' => 'IN',
-						]
+						],
 					];
 
 					$type_query[] = [
@@ -618,7 +626,7 @@ class Frontend {
 							'column'  => 'secondary_item_id',
 							'value'   => $limit_to_comments,
 							'compare' => 'IN',
-						]
+						],
 					];
 
 					$group_query[] = $type_query;
@@ -661,12 +669,13 @@ class Frontend {
 					'column'  => 'type',
 					'value'   => $passed_activity_types,
 					'compare' => 'IN',
-				]
+				],
 			];
 		}
 
 		if ( $connected_group_clauses ) {
 			$connected_group_clauses['relation'] = 'OR';
+
 			$args['filter_query'] = $connected_group_clauses;
 		} else {
 			$args['in'] = [ 0 ];
