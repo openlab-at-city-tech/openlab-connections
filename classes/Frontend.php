@@ -490,18 +490,32 @@ class Frontend {
 	 *
 	 */
 	public function add_activity_scope_support( $args ) {
-		if ( 'connected-groups' !== $args['scope'] ) {
+		if ( 'connected-groups' !== $args['scope'] && 'this-group-and-connected-groups' !== $args['scope'] ) {
 			return $args;
 		}
 
-		$connections = \OpenLab\Connections\Connection::get( [ 'group_id' => bp_get_current_group_id() ] );
+		if ( isset( $args['filter']['primary_id'] ) ) {
+			$group_id = (int) $args['filter']['primary_id'];
+		} else {
+			$group_id = bp_get_current_group_id();
+		}
+
+		$passed_activity_types = ! empty( $args['filter']['action'] ) ? $args['filter']['action'] : [];
+		if ( ! is_array( $passed_activity_types ) ) {
+			$passed_activity_types = explode( ',', $passed_activity_types );
+		}
+
+		$allow_new_blog_post    = empty( $passed_activity_types ) || in_array( 'new_blog_post', $passed_activity_types, true );
+		$allow_new_blog_comment = empty( $passed_activity_types ) || in_array( 'new_blog_comment', $passed_activity_types, true );
+
+		$connections = \OpenLab\Connections\Connection::get( [ 'group_id' => $group_id ] );
 
 		$connected_group_clauses = array_map(
-			function( $connection ) {
+			function( $connection ) use ( $passed_activity_types, $allow_new_blog_post, $allow_new_blog_comment ) {
 				$c_group_ids        = $connection->get_group_ids();
 				$connected_group_id = null;
 				foreach ( $c_group_ids as $c_group_id ) {
-					if ( $c_group_id !== bp_get_current_group_id() ) {
+					if ( $c_group_id !== $group_id ) {
 						$connected_group_id = $c_group_id;
 						break;
 					}
@@ -566,6 +580,7 @@ class Frontend {
 				}
 
 				$group_query = [
+					'relation' => 'AND',
 					[
 						'column' => 'component',
 						'value'  => 'groups',
@@ -585,7 +600,7 @@ class Frontend {
 					$type_query[] = [
 						[
 							'column' => 'type',
-							'value'  => 'new_blog_post',
+							'value'  => $allow_new_blog_post ? 'new_blog_post' : '',
 						],
 						[
 							'column'  => 'secondary_item_id',
@@ -597,7 +612,7 @@ class Frontend {
 					$type_query[] = [
 						[
 							'column' => 'type',
-							'value'  => 'new_blog_comment',
+							'value'  => $allow_new_blog_comment ? 'new_blog_comment' : '',
 						],
 						[
 							'column'  => 'secondary_item_id',
@@ -608,8 +623,13 @@ class Frontend {
 
 					$group_query[] = $type_query;
 				} else {
-					$activity_types = [ 'new_blog_post' ];
-					if ( empty( $connected_group_settings['exclude_comments'] ) ) {
+					$activity_types = [ '' ];
+
+					if ( $allow_new_blog_post ) {
+						$activity_types[] = 'new_blog_post';
+					}
+
+					if ( $allow_new_blog_comment && empty( $connected_group_settings['exclude_comments'] ) ) {
 						$activity_types[] = 'new_blog_comment';
 					}
 
@@ -627,6 +647,24 @@ class Frontend {
 
 		$connected_group_clauses = array_filter( $connected_group_clauses );
 
+		if ( 'this-group-and-connected-groups' === $args['scope'] ) {
+			$connected_group_clauses[] = [
+				[
+					'column' => 'component',
+					'value'  => 'groups',
+				],
+				[
+					'column' => 'item_id',
+					'value'  => $group_id,
+				],
+				[
+					'column'  => 'type',
+					'value'   => $passed_activity_types,
+					'compare' => 'IN',
+				]
+			];
+		}
+
 		if ( $connected_group_clauses ) {
 			$connected_group_clauses['relation'] = 'OR';
 			$args['filter_query'] = $connected_group_clauses;
@@ -637,6 +675,7 @@ class Frontend {
 		$args['scope']                = false;
 		$args['primary_id']           = false;
 		$args['filter']['primary_id'] = false;
+		$args['filter']['action']     = false;
 
 		return $args;
 	}
