@@ -414,6 +414,7 @@ class Frontend {
 				[
 					'search_terms' => $term,
 					'exclude'      => [ bp_get_current_group_id() ],
+					'status'       => [ 'public', 'private' ],
 				]
 			);
 
