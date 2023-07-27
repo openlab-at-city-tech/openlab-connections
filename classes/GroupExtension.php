@@ -22,9 +22,9 @@ class GroupExtension extends \BP_Group_Extension {
 		parent::init(
 			[
 				'slug'              => 'connections',
-				'name'              => 'Connections',
+				'name'              => __( 'Connections Settings', 'openlab-connections' ),
 				'access'            => $access,
-				'nav_item_position' => 95,
+				'nav_item_position' => 105,
 			]
 		);
 	}
