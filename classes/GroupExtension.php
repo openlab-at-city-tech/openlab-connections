@@ -17,13 +17,7 @@ class GroupExtension extends \BP_Group_Extension {
 	 * @return void
 	 */
 	public function __construct() {
-		$enabled = bp_is_group() ? Util::is_connections_enabled_for_group( bp_get_current_group_id() ) : false;
-
-		if ( $enabled && bp_is_group() ) {
-			$access = Util::user_can_initiate_group_connections() ? 'public' : 'noone';
-		} else {
-			$access = 'noone';
-		}
+		$access = Util::user_can_initiate_group_connections() ? 'public' : 'noone';
 
 		parent::init(
 			[

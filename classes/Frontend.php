@@ -109,10 +109,6 @@ class Frontend {
 	 * @return void
 	 */
 	public function group_sidebar() {
-		if ( ! Util::is_connections_enabled_for_group() ) {
-			return;
-		}
-
 		// Non-public groups shouldn't show this to non-members.
 		$group = groups_get_current_group();
 		if ( 'public' !== $group->status && empty( $group->user_has_access ) ) {
@@ -177,10 +173,6 @@ class Frontend {
 
 		check_admin_referer( 'openlab-connection-invitations', 'openlab-connection-invitations-nonce' );
 
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
-			return;
-		}
-
 		if ( empty( $_POST['invitation-group-ids'] ) ) {
 			return;
 		}
@@ -234,10 +226,6 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
-			return;
-		}
-
 		if ( empty( $_GET['delete-invitation'] ) ) {
 			return;
 		}
@@ -271,10 +259,6 @@ class Frontend {
 	 */
 	public function process_invitation_accept_request() {
 		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || ! bp_is_action_variable( 0, 'invitations' ) ) {
-			return;
-		}
-
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
 			return;
 		}
 
@@ -315,10 +299,6 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
-			return;
-		}
-
 		if ( empty( $_GET['reject-invitation'] ) ) {
 			return;
 		}
@@ -352,10 +332,6 @@ class Frontend {
 	 */
 	public function process_disconnect_request() {
 		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || bp_action_variable( 0 ) ) {
-			return;
-		}
-
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
 			return;
 		}
 

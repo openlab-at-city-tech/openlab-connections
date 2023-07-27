@@ -12,35 +12,6 @@ namespace OpenLab\Connections;
  */
 class Util {
 	/**
-	 * Checks whether the Connections feature is enabled for a group.
-	 *
-	 * Defaults to true, except for Portfolios.
-	 *
-	 * @param int $group_id Group ID. Defaults to current group.
-	 * @return bool
-	 */
-	public static function is_connections_enabled_for_group( $group_id = null ) {
-		if ( null === $group_id ) {
-			$group_id = bp_get_current_group_id();
-		}
-
-		// Default to false in case no value is found.
-		if ( ! $group_id && ! bp_is_group_create() ) {
-			return false;
-		}
-
-		if ( bp_is_group_create() ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$is_portfolio = isset( $_GET['type'] ) && 'portfolio' === sanitize_text_field( wp_unslash( $_GET['type'] ) );
-			$is_enabled   = ! $is_portfolio;
-		} else {
-			$is_enabled = (bool) groups_get_groupmeta( $group_id, 'openlab_connections_enabled' );
-		}
-
-		return $is_enabled;
-	}
-
-	/**
 	 * Checks whether a user can initiate connections for a group.
 	 *
 	 * @param int $user_id  ID of the user. Defaults to logged-in user.
