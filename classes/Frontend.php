@@ -399,9 +399,12 @@ class Frontend {
 				$group_id = groups_get_id( $group_slug );
 			} else {
 				$parts = wp_parse_url( $term );
-				$site  = get_site_by_path( $parts['host'], $parts['path'] );
-				if ( $site && 1 !== $site->blog_id ) {
-					$group_id = openlab_get_group_id_by_blog_id( $site->blog_id );
+
+				if ( ! empty( $parts['host'] ) && ! empty( $parts['path'] ) ) {
+					$site  = get_site_by_path( $parts['host'], $parts['path'] );
+					if ( $site && 1 !== $site->blog_id ) {
+						$group_id = openlab_get_group_id_by_blog_id( $site->blog_id );
+					}
 				}
 			}
 
