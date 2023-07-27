@@ -390,16 +390,24 @@ class Frontend {
 		$retval = [];
 		if ( filter_var( $term, FILTER_VALIDATE_URL ) ) {
 			$group_base = bp_get_groups_directory_permalink();
+			$group_id   = null;
 			if ( str_starts_with( $term, $group_base ) ) {
 				$url_tail   = str_replace( $group_base, '', $term );
 				$tail_parts = explode( '/', $url_tail );
 				$group_slug = $tail_parts[0];
 
 				$group_id = groups_get_id( $group_slug );
-				if ( $group_id ) {
-					$group    = groups_get_group( $group_id );
-					$retval[] = $group_format_callback( $group );
+			} else {
+				$parts = parse_url( $term );
+				$site  = get_site_by_path( $parts['host'], $parts['path'] );
+				if ( $site && 1 !== $site->blog_id ) {
+					$group_id = openlab_get_group_id_by_blog_id( $site->blog_id );
 				}
+			}
+
+			if ( $group_id ) {
+				$group    = groups_get_group( $group_id );
+				$retval[] = $group_format_callback( $group );
 			}
 		} else {
 			$groups = groups_get_groups(
