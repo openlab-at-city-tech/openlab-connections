@@ -94,14 +94,6 @@
 				return
 			}
 
-			// Check none checkboxes if necessary.
-			const categorySelect = connection.querySelector( '.connection-tax-term-selector' )
-			if ( categorySelect.selectedOptions.length > 0 ) {
-				noneCheckbox.checked = false
-			} else {
-				noneCheckbox.checked = true
-			}
-
 			if ( noneCheckbox.checked ) {
 				connection.classList.add( 'disabled' )
 				connection.querySelector( '.connection-tax-term-selector' ).disabled = true
@@ -201,6 +193,13 @@
 			},
 			500
 		)
+	} )
+
+	// On blur, if the dropdown is empty, select 'All Categories'.
+	$( '.connection-settings select' ).on( 'select2:close', (e) => {
+		if ( 0 === $( e.target ).val().length ) {
+			$( e.target ).val( [ '_all' ] ).trigger( 'change' )
+		}
 	} )
 
 })(jQuery)
