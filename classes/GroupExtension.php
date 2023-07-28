@@ -37,6 +37,7 @@ class GroupExtension extends \BP_Group_Extension {
 	 */
 	public function display( $group_id = null ) {
 		wp_enqueue_script( 'openlab-connections-frontend' );
+		wp_enqueue_style( 'openlab-connections-frontend' );
 
 		switch ( bp_action_variable( 0 ) ) {
 			case 'new' :
