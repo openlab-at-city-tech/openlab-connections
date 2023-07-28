@@ -17,20 +17,14 @@ class GroupExtension extends \BP_Group_Extension {
 	 * @return void
 	 */
 	public function __construct() {
-		$enabled = bp_is_group() ? Util::is_connections_enabled_for_group( bp_get_current_group_id() ) : false;
-
-		if ( $enabled && bp_is_group() ) {
-			$access = Util::user_can_initiate_group_connections() ? 'public' : 'noone';
-		} else {
-			$access = 'noone';
-		}
+		$access = Util::user_can_initiate_group_connections() ? 'public' : 'noone';
 
 		parent::init(
 			[
 				'slug'              => 'connections',
-				'name'              => 'Connections',
+				'name'              => __( 'Connections Settings', 'openlab-connections' ),
 				'access'            => $access,
-				'nav_item_position' => 95,
+				'nav_item_position' => 105,
 			]
 		);
 	}
@@ -43,6 +37,7 @@ class GroupExtension extends \BP_Group_Extension {
 	 */
 	public function display( $group_id = null ) {
 		wp_enqueue_script( 'openlab-connections-frontend' );
+		wp_enqueue_style( 'openlab-connections-frontend' );
 
 		switch ( bp_action_variable( 0 ) ) {
 			case 'new' :

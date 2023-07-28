@@ -109,10 +109,6 @@ class Frontend {
 	 * @return void
 	 */
 	public function group_sidebar() {
-		if ( ! Util::is_connections_enabled_for_group() ) {
-			return;
-		}
-
 		// Non-public groups shouldn't show this to non-members.
 		$group = groups_get_current_group();
 		if ( 'public' !== $group->status && empty( $group->user_has_access ) ) {
@@ -177,10 +173,6 @@ class Frontend {
 
 		check_admin_referer( 'openlab-connection-invitations', 'openlab-connection-invitations-nonce' );
 
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
-			return;
-		}
-
 		if ( empty( $_POST['invitation-group-ids'] ) ) {
 			return;
 		}
@@ -234,10 +226,6 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
-			return;
-		}
-
 		if ( empty( $_GET['delete-invitation'] ) ) {
 			return;
 		}
@@ -271,10 +259,6 @@ class Frontend {
 	 */
 	public function process_invitation_accept_request() {
 		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || ! bp_is_action_variable( 0, 'invitations' ) ) {
-			return;
-		}
-
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
 			return;
 		}
 
@@ -315,10 +299,6 @@ class Frontend {
 			return;
 		}
 
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
-			return;
-		}
-
 		if ( empty( $_GET['reject-invitation'] ) ) {
 			return;
 		}
@@ -352,10 +332,6 @@ class Frontend {
 	 */
 	public function process_disconnect_request() {
 		if ( ! bp_is_group() || ! bp_is_current_action( 'connections' ) || bp_action_variable( 0 ) ) {
-			return;
-		}
-
-		if ( ! Util::is_connections_enabled_for_group() || ! Util::user_can_initiate_group_connections() ) {
 			return;
 		}
 
@@ -414,22 +390,34 @@ class Frontend {
 		$retval = [];
 		if ( filter_var( $term, FILTER_VALIDATE_URL ) ) {
 			$group_base = bp_get_groups_directory_permalink();
+			$group_id   = null;
 			if ( str_starts_with( $term, $group_base ) ) {
 				$url_tail   = str_replace( $group_base, '', $term );
 				$tail_parts = explode( '/', $url_tail );
 				$group_slug = $tail_parts[0];
 
 				$group_id = groups_get_id( $group_slug );
-				if ( $group_id ) {
-					$group    = groups_get_group( $group_id );
-					$retval[] = $group_format_callback( $group );
+			} else {
+				$parts = wp_parse_url( $term );
+
+				if ( ! empty( $parts['host'] ) && ! empty( $parts['path'] ) ) {
+					$site = get_site_by_path( $parts['host'], $parts['path'] );
+					if ( $site && 1 !== $site->blog_id ) {
+						$group_id = openlab_get_group_id_by_blog_id( $site->blog_id );
+					}
 				}
+			}
+
+			if ( $group_id ) {
+				$group    = groups_get_group( $group_id );
+				$retval[] = $group_format_callback( $group );
 			}
 		} else {
 			$groups = groups_get_groups(
 				[
 					'search_terms' => $term,
 					'exclude'      => [ bp_get_current_group_id() ],
+					'status'       => [ 'public', 'private' ],
 				]
 			);
 
@@ -525,6 +513,12 @@ class Frontend {
 				}
 
 				if ( ! $connected_group_id ) {
+					return [];
+				}
+
+				// Content from non-public groups is never shared.
+				$connected_group = groups_get_group( $connected_group_id );
+				if ( 'public' !== $connected_group->status ) {
 					return [];
 				}
 

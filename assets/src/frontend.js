@@ -1,3 +1,5 @@
+import './frontend.scss'
+
 (function($){
 	/* Make a Connection panel */
 	const $sendInvitationsWrap = $('#send-invitations');
@@ -5,7 +7,7 @@
 
 	let debounceTimer
 
-	$newConnectionSearch = $( '#new-connection-search' );
+	const $newConnectionSearch = $( '#new-connection-search' );
 	if ( $newConnectionSearch.length ) {
 		$newConnectionSearch.autocomplete({
 			minLength: 2,
@@ -87,6 +89,8 @@
 	const processNoneCheckboxes = () => {
 		const connections = document.querySelectorAll( '.connection-settings' )
 
+		const currentGroupStatus = document.getElementById( 'current-group-status' )?.value
+
 		connections.forEach( ( connection ) => {
 			const noneCheckbox = connection.querySelector( '.connection-setting-none' )
 
@@ -94,22 +98,26 @@
 				return
 			}
 
-			// Check none checkboxes if necessary.
-			const categorySelect = connection.querySelector( '.connection-tax-term-selector' )
-			if ( categorySelect.selectedOptions.length > 0 ) {
-				noneCheckbox.checked = false
-			} else {
-				noneCheckbox.checked = true
-			}
-
-			if ( noneCheckbox.checked ) {
+			// Non-public groups always have None checked and other fields disabled.
+			if ( currentGroupStatus && 'public' !== currentGroupStatus ) {
 				connection.classList.add( 'disabled' )
 				connection.querySelector( '.connection-tax-term-selector' ).disabled = true
 				connection.querySelector( '.connection-setting-exclude-comments' ).disabled = true
+				$( connection ).find( '.connection-setting' ).addClass( 'is-disabled' )
+
+				noneCheckbox.checked = true
+				noneCheckbox.disabled = true
+				connection.querySelector( '.connection-private-group-notice' ).classList.remove( 'is-hidden' )
 			} else {
-				connection.classList.remove( 'disabled' )
-				connection.querySelector( '.connection-tax-term-selector' ).disabled = false
-				connection.querySelector( '.connection-setting-exclude-comments' ).disabled = false
+				if ( noneCheckbox.checked ) {
+					connection.classList.add( 'disabled' )
+					connection.querySelector( '.connection-tax-term-selector' ).disabled = true
+					connection.querySelector( '.connection-setting-exclude-comments' ).disabled = true
+				} else {
+					connection.classList.remove( 'disabled' )
+					connection.querySelector( '.connection-tax-term-selector' ).disabled = false
+					connection.querySelector( '.connection-setting-exclude-comments' ).disabled = false
+				}
 			}
 		} )
 	}
@@ -201,6 +209,13 @@
 			},
 			500
 		)
+	} )
+
+	// On blur, if the dropdown is empty, select 'All Categories'.
+	$( '.connection-settings select' ).on( 'select2:close', (e) => {
+		if ( 0 === $( e.target ).val().length ) {
+			$( e.target ).val( [ '_all' ] ).trigger( 'change' )
+		}
 	} )
 
 })(jQuery)

@@ -260,6 +260,12 @@ class Connection {
 			$saved
 		);
 
+		// Non-public groups never share any content.
+		$group = groups_get_group( $group_id );
+		if ( 'public' !== $group->status ) {
+			$settings['categories'] = [];
+		}
+
 		return $settings;
 	}
 
