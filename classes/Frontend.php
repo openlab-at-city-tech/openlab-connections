@@ -516,6 +516,12 @@ class Frontend {
 					return [];
 				}
 
+				// Content from non-public groups is never shared.
+				$connected_group = groups_get_group( $connected_group_id );
+				if ( 'public' !== $connected_group->status ) {
+					return [];
+				}
+
 				$connected_group_settings = $connection->get_group_settings( $connected_group_id );
 
 				if ( empty( $connected_group_settings['categories'] ) ) {
