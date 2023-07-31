@@ -516,9 +516,8 @@ class Frontend {
 					return [];
 				}
 
-				// Content from non-public groups is never shared.
-				$connected_group = groups_get_group( $connected_group_id );
-				if ( 'public' !== $connected_group->status ) {
+				// Content from non-public group sites is never shared.
+				if ( ! Util::group_has_public_site( $connected_group_id ) ) {
 					return [];
 				}
 

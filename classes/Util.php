@@ -121,4 +121,28 @@ class Util {
 
 		return [];
 	}
+
+	/**
+	 * Determines whether a group's site is public.
+	 *
+	 * This is very OpenLab-specific. The group-site lookup is particular to the
+	 * City Tech OpenLab, and the idea that -1 (registered members of the network)
+	 * is "public" is quite specific to the needs of the City Tech OpenLab. This
+	 * will need rethinking when rolling into CBOX-OL.
+	 *
+	 * @param int $group_id ID of the group.
+	 * @return bool
+	 */
+	public static function group_has_public_site( $group_id ) {
+		$group_site_id   = openlab_get_site_id_by_group_id( $group_id );
+		$has_public_site = false;
+		if ( $group_site_id ) {
+			$blog_public = get_blog_option( $group_site_id, 'blog_public' );
+			if ( is_numeric( $blog_public ) && (int) $blog_public > -2 ) {
+				$has_public_site = true;
+			}
+		}
+
+		return $has_public_site;
+	}
 }
