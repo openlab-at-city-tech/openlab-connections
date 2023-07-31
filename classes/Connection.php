@@ -264,7 +264,7 @@ class Connection {
 		$group_site_id     = openlab_get_site_id_by_group_id( $group_id );
 		$group_site_status = 'public';
 		if ( $group_site_id ) {
-			$blog_public = (int) get_blog_option( $current_group_site_id, 'blog_public' );
+			$blog_public = (int) get_blog_option( $group_site_id, 'blog_public' );
 			if ( $blog_public < -1 ) {
 				$group_site_status = 'private';
 			}
