@@ -89,7 +89,7 @@ import './frontend.scss'
 	const processNoneCheckboxes = () => {
 		const connections = document.querySelectorAll( '.connection-settings' )
 
-		const currentGroupStatus = document.getElementById( 'current-group-status' )?.value
+		const currentGroupStatus = document.getElementById( 'current-group-site-status' )?.value
 
 		connections.forEach( ( connection ) => {
 			const noneCheckbox = connection.querySelector( '.connection-setting-none' )
