@@ -25,6 +25,13 @@
 			margin-top: 0;
 		}
 
+		.info-line {
+			color: #666;
+			font-size: 12px;
+			font-weight: normal;
+			padding-top: 4px;
+		}
+
 		.disconnect-button {
 			position: absolute;
 			top: 20px;
@@ -95,12 +102,17 @@
 				font-family: "FontAwesome";
 			}
 		}
-
 	}
 
-	.connection-private-group-notice {
-		font-style: italic;
+	.connection-privacy-notices {
+		border: 2px solid #f7e700;
+		border-radius: 4px;
 		margin-top: 1em;
+		padding: 10px;
+
+		p:last-child {
+			margin-bottom: 0;
+		}
 	}
 
 	.connection-settings-gloss-title {
