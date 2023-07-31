@@ -107,7 +107,7 @@ import './frontend.scss'
 
 				noneCheckbox.checked = true
 				noneCheckbox.disabled = true
-				connection.querySelector( '.connection-private-group-notice' ).classList.remove( 'is-hidden' )
+//				connection.querySelector( '.connection-private-group-notice' ).classList.remove( 'is-hidden' )
 			} else {
 				if ( noneCheckbox.checked ) {
 					connection.classList.add( 'disabled' )
@@ -215,6 +215,14 @@ import './frontend.scss'
 	$( '.connection-settings select' ).on( 'select2:close', (e) => {
 		if ( 0 === $( e.target ).val().length ) {
 			$( e.target ).val( [ '_all' ] ).trigger( 'change' )
+		}
+	} )
+
+	// Unhide connection privacy notices.
+	$( '.connection-privacy-notices' ).each( ( index, noticesEl ) => {
+		console.log(noticesEl)
+		if ( noticesEl.querySelectorAll( 'p' ).length ) {
+			noticesEl.classList.remove( 'is-hidden' )
 		}
 	} )
 
