@@ -260,9 +260,17 @@ class Connection {
 			$saved
 		);
 
-		// Non-public groups never share any content.
-		$group = groups_get_group( $group_id );
-		if ( 'public' !== $group->status ) {
+		// Groups with non-public sites never share post content.
+		$group_site_id     = openlab_get_site_id_by_group_id( $group_id );
+		$group_site_status = 'public';
+		if ( $group_site_id ) {
+			$blog_public = (int) get_blog_option( $current_group_site_id, 'blog_public' );
+			if ( $blog_public < -1 ) {
+				$group_site_status = 'private';
+			}
+		}
+
+		if ( 'public' !== $group_site_status ) {
 			$settings['categories'] = [];
 		}
 
