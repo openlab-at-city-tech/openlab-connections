@@ -126,18 +126,6 @@
 		}
 	}
 
-	ul.ui-autocomplete {
-		background: #fff;
-		border: 1px solid #333;
-		list-style-type: none;
-		max-width: 50%;
-		padding: 15px;
-	}
-
-	.ui-menu-item-wrapper {
-		padding: 6px;
-	}
-
 	.connection-invitations {
 		display: flex;
 		flex-direction: column;
@@ -176,5 +164,19 @@
 
 	.connection-invitation-header {
 		font-weight: bold;
+	}
+}
+
+body.connections {
+	ul.ui-autocomplete {
+		background: #fff;
+		border: 1px solid #333;
+		list-style-type: none;
+		max-width: 50%;
+		padding: 15px;
+	}
+
+	.ui-menu-item-wrapper {
+		padding: 6px;
 	}
 }
