@@ -3,7 +3,7 @@
         'name' => 'openlab-at-city-tech/openlab-connections',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '5becaf8ba935fc721809556d1e538320c9e510ab',
+        'reference' => '6f89832a2c4275199d072e1ebde9b577b465a9f5',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'openlab-at-city-tech/openlab-connections' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '5becaf8ba935fc721809556d1e538320c9e510ab',
+            'reference' => '6f89832a2c4275199d072e1ebde9b577b465a9f5',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
