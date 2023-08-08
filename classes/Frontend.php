@@ -559,6 +559,7 @@ class Frontend {
 							$has_limit_to_posts = false;
 						}
 
+						$limit_to_comments = [ 0 ];
 						if ( ! $connected_group_settings['exclude_comments'] && $has_limit_to_posts ) {
 							$limit_to_comments = get_comments(
 								[

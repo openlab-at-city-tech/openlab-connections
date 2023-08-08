@@ -98,6 +98,8 @@ class Util {
 
 		$request_url = trailingslashit( $site_url ) . 'wp-json/wp/v2/' . $tax_slug;
 
+		$request_url = add_query_arg( 'per_page', '100', $request_url );
+
 		// Make the request using wp_remote_get() function.
 		$response = wp_remote_get( $request_url );
 
