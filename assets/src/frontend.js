@@ -24,6 +24,8 @@ import './frontend.scss'
 
 				showHideSendInvitations();
 
+				$newConnectionSearch.val( '' );
+
 				return false;
 			}
 		})
