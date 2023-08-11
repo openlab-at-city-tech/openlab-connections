@@ -408,7 +408,7 @@ class Frontend {
 				}
 			}
 
-			if ( $group_id ) {
+			if ( $group_id && bp_get_current_group_id() !== $group_id ) {
 				$group    = groups_get_group( $group_id );
 				$retval[] = $group_format_callback( $group );
 			}

@@ -150,8 +150,20 @@
 			flex: 0 0 150px;
 		}
 
-		.delete-invite:hover {
-			text-decoration: underline;
+		.delete-invite {
+			&::after {
+				content: "\f014";
+				font-family: "FontAwesome";
+				font-size: 18px;
+			}
+
+			&:hover {
+				text-decoration: none;
+
+				&::after {
+					content: "\f1f8";
+				}
+			}
 		}
 	}
 
