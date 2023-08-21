@@ -317,7 +317,7 @@ class Connection {
 		$connection_ids = $wpdb->get_col( $sql_statement );
 
 		$connections = array_map(
-			function( $connection_id ) {
+			function ( $connection_id ) {
 				return self::get_instance( $connection_id );
 			},
 			$connection_ids
@@ -332,7 +332,7 @@ class Connection {
 
 			usort(
 				$connections,
-				function( $connection_a, $connection_b ) use ( $group_id ) {
+				function ( $connection_a, $connection_b ) use ( $group_id ) {
 					$connection_a_group_ids = $connection_a->get_group_ids();
 					$connection_b_group_ids = $connection_b->get_group_ids();
 

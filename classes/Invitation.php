@@ -472,7 +472,7 @@ class Invitation {
 		$invitation_ids = $wpdb->get_col( $sql_statement );
 
 		$invitations = array_map(
-			function( $invitation_id ) {
+			function ( $invitation_id ) {
 				return self::get_instance( $invitation_id );
 			},
 			$invitation_ids
