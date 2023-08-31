@@ -1,5 +1,7 @@
 import './frontend.scss'
 
+import { __ } from '@wordpress/i18n';
+
 (function($){
 	/* Make a Connection panel */
 	const $sendInvitationsWrap = $('#send-invitations');
@@ -163,9 +165,39 @@ import './frontend.scss'
 		$.post(
 			{
 				url: ajaxurl + '?action=openlab_connections_save_connection_settings',
-				data
+				data,
+				success: ( response ) => {
+					if ( response.success ) {
+						setSaveStatus( connectionId, 'saved' )
+					} else {
+						setSaveStatus( connectionId, 'error' )
+					}
+				}
 			}
 		);
+	}
+
+	const setSaveStatus = ( connectionId, saveStatus ) => {
+		const saveStatusEl = document.getElementById( 'connection-settings-save-status-' + connectionId )
+
+		const allSaveStatusClasses = [
+			'is-saving',
+			'is-saved'
+		]
+
+		allSaveStatusClasses.forEach( ( saveStatusClass ) => saveStatusEl.classList.remove( saveStatusClass ) )
+
+		switch ( saveStatus ) {
+			case 'saving':
+				saveStatusEl.classList.add( 'is-saving' );
+				saveStatusEl.innerHTML = __( 'Saving...', 'openlab-connections' );
+			break;
+
+			case 'saved':
+				saveStatusEl.classList.add( 'is-saved' );
+				saveStatusEl.innerHTML = __( 'Saved!', 'openlab-connections' );
+			break;
+		}
 	}
 
 	// Actions that trigger asynchronous settings save.
@@ -173,12 +205,16 @@ import './frontend.scss'
 		checkbox.addEventListener(
 			'change',
 			() => {
+				const connectionId = checkbox.closest( '.connection-settings' ).dataset.connectionId
+
+				setSaveStatus( connectionId, 'saving' )
+
 				processNoneCheckboxes()
 
 				clearTimeout( debounceTimer )
 				debounceTimer = setTimeout(
 					() => {
-						saveConnectionSettings( checkbox.closest( '.connection-settings' ).dataset.connectionId )
+						saveConnectionSettings( connectionId )
 					},
 					500
 				)
@@ -202,12 +238,16 @@ import './frontend.scss'
 	} )
 
 	$( '.connection-settings select' ).on( 'change.select2', (e) => {
+		const connectionId = e.target.closest( '.connection-settings' ).dataset.connectionId
+
+		setSaveStatus( connectionId, 'saving' )
+
 		processNoneCheckboxes()
 
 		clearTimeout( debounceTimer )
 		debounceTimer = setTimeout(
 			() => {
-				saveConnectionSettings( e.target.closest( '.connection-settings' ).dataset.connectionId )
+				saveConnectionSettings( connectionId )
 			},
 			500
 		)

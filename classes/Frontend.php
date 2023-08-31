@@ -466,11 +466,15 @@ class Frontend {
 		}
 		$settings['categories'] = $selected_categories;
 
-		$exclude_comments = ! empty( $_POST['excludeComments'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['excludeComments'] ) );
+		$settings['exclude_comments'] = ! empty( $_POST['excludeComments'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['excludeComments'] ) );
 
 		$saved = groups_update_groupmeta( $group_id, 'connection_settings_' . $connection_id, $settings );
 
-		die;
+		if ( $saved ) {
+			wp_send_json_success();
+		} else {
+			wp_send_json_error();
+		}
 	}
 
 	/**

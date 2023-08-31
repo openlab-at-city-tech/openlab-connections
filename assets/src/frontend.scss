@@ -102,6 +102,32 @@
 				font-family: "FontAwesome";
 			}
 		}
+
+		.connection-settings-save-status {
+			font-weight: 700;
+			position: absolute;
+			bottom: 20px;
+			right: 20px;
+
+			&::before {
+				font-family: "FontAwesome";
+				margin-right: 5px;
+			}
+
+			&.is-saving {
+				&::before {
+					content: "\f110";
+				}
+			}
+
+			&.is-saved {
+				color: #0a0;
+
+				&::before {
+					content: "\f00c";
+				}
+			}
+		}
 	}
 
 	.connection-privacy-notices {
