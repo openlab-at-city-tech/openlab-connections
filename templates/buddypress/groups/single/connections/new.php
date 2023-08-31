@@ -1,4 +1,10 @@
 <?php
+/**
+ * 'Make a Connection' template.
+ *
+ * @package openlab-connections
+ */
+
 $group_label_uc = openlab_get_group_type_label( 'case=upper' );
 
 $sent_invites = \OpenLab\Connections\Invitation::get(
@@ -56,7 +62,12 @@ $sent_invites = \OpenLab\Connections\Invitation::get(
 
 								$group = groups_get_group( $invite->get_invitee_group_id() );
 
-								$date_sent = '0000-00-00 00:00:00' === $invite->get_date_created() ? '' : date_i18n( get_option( 'date_format' ), strtotime( $invite->get_date_created() ) );
+								$date_format = get_option( 'date_format' );
+								if ( ! is_string( $date_format ) ) {
+									$date_format = 'F j, Y';
+								}
+
+								$date_sent = '0000-00-00 00:00:00' === $invite->get_date_created() ? '' : date_i18n( $date_format, strtotime( $invite->get_date_created() ) );
 
 								$delete_url = bp_get_group_permalink( groups_get_current_group() ) . 'connections/new/';
 								$delete_url = add_query_arg( 'delete-invitation', $invite->get_invitation_id(), $delete_url );
@@ -65,7 +76,7 @@ $sent_invites = \OpenLab\Connections\Invitation::get(
 								?>
 
 								<div class="sent-invitation connection-invitation">
-									<div class="actions"><a href="<?php echo esc_url( $delete_url ); ?>" class="delete-invite" onclick="return confirm('Are you sure you want to delete this invitation?')" data-invitation-id="<?php echo esc_attr( $invite->get_invitation_id() ); ?>"><span class="sr-only">Delete Invitation</span></a></div>
+									<div class="actions"><a href="<?php echo esc_url( $delete_url ); ?>" class="delete-invite" onclick="return confirm(<?php echo esc_attr( __( 'Are you sure you want to delete this invitation?', 'openlab-connections' ) ); ?>)" data-invitation-id="<?php echo esc_attr( (string) $invite->get_invitation_id() ); ?>"><span class="sr-only"><?php esc_html_e( 'Delete Invitation', 'openlab-connections' ); ?></span></a></div>
 									<div class="group"><?php echo esc_html( $group->name ); ?></div>
 									<div class="sent"><?php echo esc_html( $date_sent ); ?></div>
 								</div>

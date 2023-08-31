@@ -22,8 +22,8 @@ $pending_invites = \OpenLab\Connections\Invitation::get(
 					<div class="pending-invitations connection-invitations">
 						<div class="pending-invitation connection-invitation connection-invitation-header">
 							<div class="actions"><span class="sr-only"><?php esc_html_e( 'Actions', 'openlab-connections' ); ?></span></div>
-							<div class="group"><?php esc_html_e( 'Group', 'text-domain' ); ?></div>
-							<div class="received"><?php esc_html_e( 'Received', 'text-domain' ); ?></div>
+							<div class="group"><?php esc_html_e( 'Group', 'openlab-connections' ); ?></div>
+							<div class="received"><?php esc_html_e( 'Received', 'openlab-connections' ); ?></div>
 						</div>
 
 						<?php foreach ( $pending_invites as $pending_invite ) : ?>
@@ -31,12 +31,17 @@ $pending_invites = \OpenLab\Connections\Invitation::get(
 
 							$group = groups_get_group( $pending_invite->get_inviter_group_id() );
 
-							$date_received = '0000-00-00 00:00:00' === $pending_invite->get_date_created() ? '' : date_i18n( get_option( 'date_format' ), strtotime( $pending_invite->get_date_created() ) );
+							$date_format = get_option( 'date_format' );
+							if ( ! is_string( $date_format ) ) {
+								$date_format = 'F j, Y';
+							}
+
+							$date_received = '0000-00-00 00:00:00' === $pending_invite->get_date_created() ? '' : date_i18n( $date_format, strtotime( $pending_invite->get_date_created() ) );
 
 							$invitation_id = $pending_invite->get_invitation_id();
 
-							$accept_url = wp_nonce_url( $pending_invite->get_accept_url(), 'accept-invitation-' . $invitation_id );;
-							$reject_url = wp_nonce_url( $pending_invite->get_reject_url(), 'reject-invitation-' . $invitation_id );;
+							$accept_url = wp_nonce_url( $pending_invite->get_accept_url(), 'accept-invitation-' . $invitation_id );
+							$reject_url = wp_nonce_url( $pending_invite->get_reject_url(), 'reject-invitation-' . $invitation_id );
 
 							?>
 

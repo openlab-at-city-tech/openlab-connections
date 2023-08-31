@@ -76,20 +76,25 @@ switch ( $current_group_site_status ) {
 
 				$connection_settings = $connection->get_group_settings( bp_get_current_group_id() );
 
-				$connected_group_site_id     = openlab_get_site_id_by_group_id( $connected_group_id );
-				$connected_group_blog_public = (int) get_blog_option( $connected_group_site_id, 'blog_public' );
+				$connected_group_site_id = openlab_get_site_id_by_group_id( $connected_group_id );
+
+				$connected_group_blog_public_raw = get_blog_option( $connected_group_site_id, 'blog_public' );
+				$connected_group_blog_public     = is_numeric( $connected_group_blog_public_raw ) ? (int) $connected_group_blog_public_raw : 1;
 
 				$selected_categories = [];
 				if ( isset( $connection_settings['categories'] ) ) {
 					if ( 'all' === $connection_settings['categories'] ) {
 						$selected_categories = 'all';
 					} else {
-						$selected_categories = array_map( 'intval', $connection_settings['categories'] );
+						$saved_categories    = is_array( $connection_settings['categories'] ) ? $connection_settings['categories'] : [];
+						$selected_categories = array_map( 'intval', $saved_categories );
 					}
 				}
 
+				$connection_id = (string) $connection->get_connection_id();
+
 				?>
-				<div class="connection-settings" id="connection-settings-<?php echo esc_attr( $connection->get_connection_id() ); ?>" data-connection-id="<?php echo esc_attr( $connection->get_connection_id() ); ?>">
+				<div class="connection-settings" id="connection-settings-<?php echo esc_attr( $connection_id ); ?>" data-connection-id="<?php echo esc_attr( $connection_id ); ?>">
 					<div class="avatar-column">
 						<a href="<?php echo esc_url( $connected_group_url ); ?>"><?php echo $connected_group_avatar; ?></a>
 					</div>
@@ -129,22 +134,27 @@ switch ( $current_group_site_status ) {
 
 							<div class="accordion-content">
 								<div class="connection-setting">
-									<label for="connection-<?php echo esc_attr( $connection->get_connection_id() ); ?>-categories"><?php esc_html_e( 'Include posts and comments from the following categories:', 'openlab-connections' ); ?></label>
-									<select multiple id="connection-<?php echo esc_attr( $connection->get_connection_id() ); ?>-categories" class="connection-tax-term-selector">
+									<label for="connection-<?php echo esc_attr( $connection_id ); ?>-categories"><?php esc_html_e( 'Include posts and comments from the following categories:', 'openlab-connections' ); ?></label>
+									<select multiple id="connection-<?php echo esc_attr( $connection_id ); ?>-categories" class="connection-tax-term-selector">
 										<option value="_all" <?php selected( 'all' === $selected_categories ); ?>><?php esc_html_e( 'All categories', 'openlab-connections' ); ?></option>
 
 										<?php foreach ( $site_categories as $site_category ) : ?>
-											<option value="<?php echo esc_attr( $site_category['id'] ); ?>" <?php selected( is_array( $selected_categories ) && in_array( $site_category['id'], $selected_categories, true ) ); ?>><?php echo esc_html( $site_category['name'] ); ?></option>
+											<?php
+											$site_category_id   = is_array( $site_category ) && isset( $site_category['id'] ) ? $site_category['id'] : 0;
+											$site_category_name = is_array( $site_category ) && isset( $site_category['name'] ) && is_string( $site_category['name'] ) ? $site_category['name'] : '';
+											?>
+
+											<option value="<?php echo esc_attr( (string) $site_category_id ); ?>" <?php selected( is_array( $selected_categories ) && in_array( $site_category_id, $selected_categories, true ) ); ?>><?php echo esc_html( $site_category_name ); ?></option>
 										<?php endforeach; ?>
 									</select>
 								</div>
 
 								<div class="connection-setting connection-setting-checkbox">
-									<input type="checkbox" <?php checked( $connection_settings['exclude_comments'] ); ?> class="connection-setting-exclude-comments" id="connection-<?php echo esc_attr( $connection->get_connection_id() ); ?>-exclude-comments" name="connection-settings[content-type][comment]" value="1" /> <label for="connection-<?php echo esc_attr( $connection->get_connection_id() ); ?>-exclude-comments"><?php esc_html_e( 'Do not include comments', 'openlab-connections' ); ?>
+									<input type="checkbox" <?php checked( $connection_settings['exclude_comments'] ); ?> class="connection-setting-exclude-comments" id="connection-<?php echo esc_attr( $connection_id ); ?>-exclude-comments" name="connection-settings[content-type][comment]" value="1" /> <label for="connection-<?php echo esc_attr( $connection_id ); ?>-exclude-comments"><?php esc_html_e( 'Do not include comments', 'openlab-connections' ); ?>
 								</div>
 
 								<div class="connection-setting connection-setting-checkbox">
-									<input type="checkbox" <?php checked( empty( $selected_categories ) ); ?> class="connection-setting-none" id="connection-<?php echo esc_attr( $connection->get_connection_id() ); ?>-none" /> <label for="connection-<?php echo esc_attr( $connection->get_connection_id() ); ?>-none"><?php esc_html_e( 'Do not share any content with this connection', 'openlab-connections' ); ?>
+									<input type="checkbox" <?php checked( empty( $selected_categories ) ); ?> class="connection-setting-none" id="connection-<?php echo esc_attr( $connection_id ); ?>-none" /> <label for="connection-<?php echo esc_attr( $connection_id ); ?>-none"><?php esc_html_e( 'Do not share any content with this connection', 'openlab-connections' ); ?>
 								</div>
 							</div><!-- .accordion-content -->
 						</div>
@@ -152,9 +162,9 @@ switch ( $current_group_site_status ) {
 
 					<a href="<?php echo esc_url( wp_nonce_url( $connection->get_disconnect_url( bp_get_current_group_id() ), 'disconnect-' . $connection->get_connection_id() ) ); ?>" onclick="return confirm( '<?php echo esc_js( sprintf( __( 'Are you sure you want to disconnect from %s?', 'openlab-connections' ), $connected_group->name ) ); ?>' )" class="disconnect-button no-deco btn btn-primary" aria-label="<?php esc_attr_e( 'Disconnect', 'openlab-connections' ); ?>"><?php esc_html_e( 'Connected', 'openlab-connections' ); ?></a>
 
-					<div class="connection-settings-save-status" id="connection-settings-save-status-<?php echo esc_attr( $connection->get_connection_id() ); ?>"></div>
+					<div class="connection-settings-save-status" id="connection-settings-save-status-<?php echo esc_attr( $connection_id ); ?>"></div>
 
-					<?php wp_nonce_field( 'connection-settings-' . $connection->get_connection_id(), 'connection-settings-' . $connection->get_connection_id() . '-nonce', false ); ?>
+					<?php wp_nonce_field( 'connection-settings-' . $connection_id, 'connection-settings-' . $connection_id . '-nonce', false ); ?>
 				</div>
 			<?php endforeach; ?>
 		</div>
