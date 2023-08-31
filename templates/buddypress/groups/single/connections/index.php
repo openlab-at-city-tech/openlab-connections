@@ -1,4 +1,10 @@
 <?php
+/**
+ * 'Connected Groups' template.
+ *
+ * @package openlab-connections
+ */
+
 // @todo Pagination.
 $connections = \OpenLab\Connections\Connection::get( [ 'group_id' => bp_get_current_group_id() ] );
 
@@ -14,12 +20,14 @@ $current_group_site_status = OpenLab\Connections\Util::group_has_public_site( bp
 
 switch ( $current_group_site_status ) {
 	case 'private' :
-		$group_status_text = sprintf( 'Your %s Site is only visible to its members, so activity will not be shared with Connections.', $current_group_type_label );
-	break;
+		// @todo Probably not good for translation.
+		// translators: Group type.
+		$group_status_text = sprintf( __( 'Your %s Site is only visible to its members, so activity will not be shared with Connections.', 'openlab-connections' ), $current_group_type_label );
+		break;
 
 	default :
 		$group_status_text = '';
-	break;
+		break;
 }
 
 ?>
@@ -37,8 +45,8 @@ switch ( $current_group_site_status ) {
 				<?php
 				$other_group_id_array = array_filter(
 					$connection->get_group_ids(),
-					function( $group_id ) {
-						return $group_id !== bp_get_current_group_id();
+					function ( $group_id ) {
+						return bp_get_current_group_id() !== $group_id;
 					}
 				);
 
@@ -60,11 +68,11 @@ switch ( $current_group_site_status ) {
 				switch ( $connected_group_type ) {
 					case 'portfolio' :
 						$contact_link = bp_core_get_userlink( openlab_get_user_id_from_portfolio_group_id( $connected_group_id ) );
-					break;
+						break;
 
 					default :
 						$contact_link = openlab_output_group_contact_line( $connected_group_id );
-					break;
+						break;
 				}
 
 				$connected_group_type_label = openlab_get_group_type_label(
@@ -96,6 +104,7 @@ switch ( $current_group_site_status ) {
 				?>
 				<div class="connection-settings" id="connection-settings-<?php echo esc_attr( $connection_id ); ?>" data-connection-id="<?php echo esc_attr( $connection_id ); ?>">
 					<div class="avatar-column">
+						<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<a href="<?php echo esc_url( $connected_group_url ); ?>"><?php echo $connected_group_avatar; ?></a>
 					</div>
 
@@ -105,6 +114,7 @@ switch ( $current_group_site_status ) {
 
 							<?php if ( $contact_link ) : ?>
 								<div class="info-line uppercase">
+									<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 									<?php echo $contact_link; ?>
 								</div>
 							<?php endif; ?>
@@ -113,7 +123,9 @@ switch ( $current_group_site_status ) {
 						<div class="connection-privacy-notices is-hidden">
 							<?php if ( $connected_group_blog_public < -1 ) : ?>
 								<p class="connection-private-group-notice">
-									<?php echo sprintf( 'This connected %s\'s Site is only visible to its members. Activity will not be shared with your %s.', $connected_group_type_label, $current_group_type_label ); ?>
+									<?php // @todo Needs i18n improvement ?>
+									<?php // translators: 1. Group type; 2. Group type. ?>
+									<?php printf( esc_html__( 'This connected %1$s\'s Site is only visible to its members. Activity will not be shared with your %2$s.', 'openlab-connections' ), esc_html( $connected_group_type_label ), esc_html( $current_group_type_label ) ); ?>
 								</p>
 							<?php endif; ?>
 
@@ -160,6 +172,7 @@ switch ( $current_group_site_status ) {
 						</div>
 					</div>
 
+					<?php // translators: Name of the group. ?>
 					<a href="<?php echo esc_url( wp_nonce_url( $connection->get_disconnect_url( bp_get_current_group_id() ), 'disconnect-' . $connection->get_connection_id() ) ); ?>" onclick="return confirm( '<?php echo esc_js( sprintf( __( 'Are you sure you want to disconnect from %s?', 'openlab-connections' ), $connected_group->name ) ); ?>' )" class="disconnect-button no-deco btn btn-primary" aria-label="<?php esc_attr_e( 'Disconnect', 'openlab-connections' ); ?>"><?php esc_html_e( 'Connected', 'openlab-connections' ); ?></a>
 
 					<div class="connection-settings-save-status" id="connection-settings-save-status-<?php echo esc_attr( $connection_id ); ?>"></div>

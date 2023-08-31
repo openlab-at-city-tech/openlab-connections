@@ -23,38 +23,40 @@ $sent_invites = \OpenLab\Connections\Invitation::get(
 
 	<form method="post" class="form-panel">
 		<div class="panel panel-default">
-			<div class="panel-heading">Make a Connection</div>
+			<div class="panel-heading"><?php esc_html_e( 'Make a Connection', 'openlab-connections' ); ?></div>
 
 			<div class="panel-body">
-				<p><strong>Search for an OpenLab group</strong></p>
-				<p>Start typing the name of the OpenLab group or copy/paste the group's URL.</p>
-				<label for="new-connection-search" class="sr-only">Type Group Name or Paste URL</label>
+				<p><strong><?php esc_html_e( 'Search for an OpenLab group', 'openlab-connections' ); ?></strong></p>
+				<p><?php esc_html_e( 'Start typing the name of the OpenLab group or copy/paste the group\'s URL.', 'openlab-connections' ); ?></p>
+				<label for="new-connection-search" class="sr-only"><?php esc_html_e( 'Type Group Name or Paste URL', 'openlab-connections' ); ?></label>
 				<input type="text" class="form-control" id="new-connection-search" />
 				<input id="new-connection-group-id" name="new-connection-group-id" type="hidden" value="" />
 
 				<div id="send-invitations" style="display: none;">
-					<p><strong>Send Invitations</strong></p>
-					<p>These groups will be sent an invitation to connect to your <?php echo esc_html( $group_label_uc ); ?>.</p>
+					<p><strong><?php esc_html_e( 'Send Invitations', 'openlab-connections' ); ?></strong></p>
+					<?php // @todo Improve for i18n. ?>
+					<?php // translators: Group type. ?>
+					<p><?php printf( esc_html__( 'These groups will be sent an invitation to connect to your %s.', 'openlab-connections' ), esc_html( $group_label_uc ) ); ?></p>
 					<div id="send-invitations-list" class="invites group-list item-list row"></div>
 
 					<?php wp_nonce_field( 'openlab-connection-invitations', 'openlab-connection-invitations-nonce' ); ?>
-					<input type="submit" value="Send Invites" class="btn btn-primary btn-margin btn-margin-top" />
+					<input type="submit" value="<?php esc_attr_e( 'Send Invites', 'openlab-connections' ); ?>" class="btn btn-primary btn-margin btn-margin-top" />
 				</div>
 			</div>
 		</div>
 
 		<div class="panel panel-default">
-			<div class="panel-heading">Pending Invites</div>
+			<div class="panel-heading"><?php esc_html_e( 'Pending Invites', 'openlab-connections' ); ?></div>
 
 			<div class="panel-body">
 
 				<?php if ( $sent_invites ) : ?>
-					<p>You have sent invitations to the following groups:</p>
+					<p><?php esc_html_e( 'You have sent invitations to the following groups:', 'openlab-connections' ); ?></p>
 						<div class="sent-invitations connection-invitations">
 							<div class="sent-invitation connection-invitation connection-invitation-header">
-								<div class="actions"><span class="sr-only"><?php esc_html_e( 'Delete', 'text-domain' ); ?></span></div>
-								<div class="group"><?php esc_html_e( 'Group', 'text-domain' ); ?></div>
-								<div class="sent"><?php esc_html_e( 'Sent', 'text-domain' ); ?></div>
+								<div class="actions"><span class="sr-only"><?php esc_html_e( 'Delete', 'openlab-connections' ); ?></span></div>
+								<div class="group"><?php esc_html_e( 'Group', 'openlab-connections' ); ?></div>
+								<div class="sent"><?php esc_html_e( 'Sent', 'openlab-connections' ); ?></div>
 							</div>
 
 							<?php foreach ( $sent_invites as $invite ) : ?>
@@ -83,7 +85,7 @@ $sent_invites = \OpenLab\Connections\Invitation::get(
 							<?php endforeach; ?>
 						</div>
 				<?php else : ?>
-					<p>None of your connection invitations are awaiting a response.</p>
+					<p><?php esc_html_e( 'None of your connection invitations are awaiting a response.', 'openlab-connections' ); ?></p>
 				<?php endif; ?>
 			</div>
 		</div>
@@ -101,7 +103,7 @@ $sent_invites = \OpenLab\Connections\Invitation::get(
 					<p class="item-title h2"><a class="no-deco truncate-on-the-fly" href="{{ data.groupUrl }}" data-basevalue="65" data-minvalue="20" data-basewidth="280" style="opacity: 1;">{{ data.groupName }}</a></p>
 
 					<div class="action invite-member-actions">
-						<button class="remove-connection-invitation link-button">Remove invite</a>
+						<button class="remove-connection-invitation link-button"><?php echo esc_html_e( 'Remove invite', 'openlab-connections' ); ?></a>
 					</div>
 				</div>
 

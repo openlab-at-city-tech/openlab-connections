@@ -1,3 +1,12 @@
+<?php
+/**
+ * 'Invitations' template.
+ *
+ * @package openlab-connections
+ */
+
+?>
+
 <?php do_action( 'template_notices' ); ?>
 
 <?php
@@ -14,9 +23,21 @@ $pending_invites = \OpenLab\Connections\Invitation::get(
 
 	<form class="form-panel">
 		<div class="panel panel-default">
-			<div class="panel-heading">Invitations</div>
+			<div class="panel-heading"><?php esc_html_e( 'Invitations', 'openlab-connections' ); ?></div>
 			<div class="panel-body">
-				<p>Accept or decline invitations to connect. Manage the activity shared out to your connected groups in <a href="<?php echo esc_url( bp_get_group_permalink( groups_get_current_group() ) . 'connections/' ); ?>">Manage Connections</a>.</p>
+				<p>
+					<?php
+					printf(
+						// translators: Manage Connections link.
+						esc_html__( 'Accept or decline invitations to connect. Manage the activity shared out to your connected groups in %s.', 'openlab-connections' ),
+						sprintf(
+							'<a href="%s">%s</a>',
+							esc_url( bp_get_group_permalink( groups_get_current_group() ) . 'connections/' ),
+							esc_html__( 'Manage Connections', 'openlab-connections' )
+						)
+					);
+					?>
+				</p>
 
 				<?php if ( $pending_invites ) : ?>
 					<div class="pending-invitations connection-invitations">
@@ -47,8 +68,8 @@ $pending_invites = \OpenLab\Connections\Invitation::get(
 
 							<div class="pending-invitation connection-invitation">
 								<div class="actions">
-									<a class="btn btn-primary" href="<?php echo esc_url( $accept_url ); ?>"><?php esc_html_e( 'Accept' ); ?></a>
-									<a class="btn btn-default" href="<?php echo esc_url( $reject_url ); ?>"><?php esc_html_e( 'Reject' ); ?></a>
+									<a class="btn btn-primary" href="<?php echo esc_url( $accept_url ); ?>"><?php esc_html_e( 'Accept', 'openlab-connections' ); ?></a>
+									<a class="btn btn-default" href="<?php echo esc_url( $reject_url ); ?>"><?php esc_html_e( 'Reject', 'openlab-connections' ); ?></a>
 								</div>
 
 								<div class="group"><?php echo esc_html( $group->name ); ?></div>
