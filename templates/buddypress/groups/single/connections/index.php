@@ -31,9 +31,17 @@ switch ( $current_group_site_status ) {
 }
 
 // We use the existence of pending invites to determine the text of the 'no connections' message.
-$pending_invites = \OpenLab\Connections\Invitation::get(
+$pending_invites_sent = \OpenLab\Connections\Invitation::get(
 	[
 		'inviter_group_id' => bp_get_current_group_id(),
+		'pending_only'     => true,
+	]
+);
+
+// We use the existence of pending invites to determine the text of the 'no connections' message.
+$pending_invites_received = \OpenLab\Connections\Invitation::get(
+	[
+		'invitee_group_id' => bp_get_current_group_id(),
 		'pending_only'     => true,
 	]
 );
@@ -192,8 +200,10 @@ $pending_invites = \OpenLab\Connections\Invitation::get(
 	<?php else : ?>
 		<p><?php echo wp_kses_post( __( 'This feature connects related spaces on the Openlab. It is useful for sharing site activity with cohorts, collaborators, and across course sections. Visit <a href="tk">OpenLab Help</a> for more information.', 'openlab-connections' ) ); ?></p>
 
-		<?php if ( $pending_invites ) : ?>
+		<?php if ( $pending_invites_sent ) : ?>
 			<p><?php esc_html_e( 'You have sent Connections invitations.', 'openlab-connections' ); ?> <strong><a href="<?php echo esc_url( bp_get_group_permalink( groups_get_current_group() ) ); ?>connections/new/"><?php esc_html_e( 'View Pending Invitations', 'openlab-connections' ); ?></a></strong>.</p>
+		<?php elseif ( $pending_invites_received ) : ?>
+			<p><?php esc_html_e( 'You have been sent Connections invitations.', 'openlab-connections' ); ?> <strong><a href="<?php echo esc_url( bp_get_group_permalink( groups_get_current_group() ) ); ?>connections/invitations/"><?php esc_html_e( 'View Pending Invitations', 'openlab-connections' ); ?></a></strong>.</p>
 		<?php else : ?>
 			<p><?php esc_html_e( "You haven't made any Connections yet.", 'openlab-connections' ); ?> <strong><a href="<?php echo esc_url( bp_get_group_permalink( groups_get_current_group() ) ); ?>connections/new/"><?php esc_html_e( 'Make a Connection', 'openlab-connections' ); ?></a></strong>.</p>
 		<?php endif; ?>
