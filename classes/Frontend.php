@@ -39,6 +39,8 @@ class Frontend {
 	 * @return void
 	 */
 	public function init() {
+		add_action( 'bp_actions', [ $this, 'register_template_stack' ] );
+
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_assets' ] );
 
 		add_action( 'bp_group_options_nav', [ $this, 'group_sidebar' ], 15 );
@@ -54,6 +56,20 @@ class Frontend {
 
 		add_action( 'wp_ajax_openlab_connection_group_search', [ $this, 'process_group_search_ajax' ] );
 		add_action( 'wp_ajax_openlab_connections_save_connection_settings', [ $this, 'process_save_connection_settings' ] );
+	}
+
+	/**
+	 * Register our theme template directory with BuddyPress.
+	 *
+	 * @return void
+	 */
+	public function register_template_stack() {
+		bp_register_template_stack(
+			function () {
+				return OPENLAB_CONNECTIONS_PLUGIN_DIR . 'templates';
+			},
+			20
+		);
 	}
 
 	/**
