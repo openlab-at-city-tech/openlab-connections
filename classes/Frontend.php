@@ -378,7 +378,7 @@ class Frontend {
 		$term = sanitize_text_field( wp_unslash( $_GET['term'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		$group_format_callback = function( $group ) {
+		$group_format_callback = function ( $group ) {
 			return [
 				'groupName'   => $group->name,
 				'groupUrl'    => bp_get_group_permalink( $group ),
@@ -466,11 +466,15 @@ class Frontend {
 		}
 		$settings['categories'] = $selected_categories;
 
-		$exclude_comments = ! empty( $_POST['excludeComments'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['excludeComments'] ) );
+		$settings['exclude_comments'] = ! empty( $_POST['excludeComments'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['excludeComments'] ) );
 
 		$saved = groups_update_groupmeta( $group_id, 'connection_settings_' . $connection_id, $settings );
 
-		die;
+		if ( $saved ) {
+			wp_send_json_success();
+		} else {
+			wp_send_json_error();
+		}
 	}
 
 	/**
@@ -502,7 +506,7 @@ class Frontend {
 		$connections = \OpenLab\Connections\Connection::get( [ 'group_id' => $group_id ] );
 
 		$connected_group_clauses = array_map(
-			function( $connection ) use ( $allow_new_blog_post, $allow_new_blog_comment, $group_id ) {
+			function ( $connection ) use ( $allow_new_blog_post, $allow_new_blog_comment, $group_id ) {
 				$c_group_ids        = $connection->get_group_ids();
 				$connected_group_id = null;
 				foreach ( $c_group_ids as $c_group_id ) {
