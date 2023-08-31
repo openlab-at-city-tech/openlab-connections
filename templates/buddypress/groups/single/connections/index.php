@@ -30,6 +30,14 @@ switch ( $current_group_site_status ) {
 		break;
 }
 
+// We use the existence of pending invites to determine the text of the 'no connections' message.
+$pending_invites = \OpenLab\Connections\Invitation::get(
+	[
+		'inviter_group_id' => bp_get_current_group_id(),
+		'pending_only'     => true,
+	]
+);
+
 ?>
 
 <?php do_action( 'template_notices' ); ?>
@@ -184,6 +192,10 @@ switch ( $current_group_site_status ) {
 	<?php else : ?>
 		<p><?php echo wp_kses_post( __( 'This feature connects related spaces on the Openlab. It is useful for sharing site activity with cohorts, collaborators, and across course sections. Visit <a href="tk">OpenLab Help</a> for more information.', 'openlab-connections' ) ); ?></p>
 
-		<p><?php esc_html_e( "You haven't made any Connections yet.", 'openlab-connections' ); ?> <strong><a href="<?php echo esc_url( bp_get_group_permalink( groups_get_current_group() ) ); ?>connections/new/"><?php esc_html_e( 'Make a Connection', 'openlab-connections' ); ?></a></strong>.</p>
+		<?php if ( $pending_invites ) : ?>
+			<p><?php esc_html_e( 'You have sent Connections invitations.', 'openlab-connections' ); ?> <strong><a href="<?php echo esc_url( bp_get_group_permalink( groups_get_current_group() ) ); ?>connections/new/"><?php esc_html_e( 'View Pending Invitations', 'openlab-connections' ); ?></a></strong>.</p>
+		<?php else : ?>
+			<p><?php esc_html_e( "You haven't made any Connections yet.", 'openlab-connections' ); ?> <strong><a href="<?php echo esc_url( bp_get_group_permalink( groups_get_current_group() ) ); ?>connections/new/"><?php esc_html_e( 'Make a Connection', 'openlab-connections' ); ?></a></strong>.</p>
+		<?php endif; ?>
 	<?php endif; ?>
 </div>
