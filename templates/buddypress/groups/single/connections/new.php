@@ -79,7 +79,7 @@ $sent_invites = \OpenLab\Connections\Invitation::get(
 
 								<div class="sent-invitation connection-invitation">
 									<div class="actions"><a href="<?php echo esc_url( $delete_url ); ?>" class="delete-invite" onclick="return confirm(<?php echo esc_attr( __( 'Are you sure you want to delete this invitation?', 'openlab-connections' ) ); ?>)" data-invitation-id="<?php echo esc_attr( (string) $invite->get_invitation_id() ); ?>"><span class="sr-only"><?php esc_html_e( 'Delete Invitation', 'openlab-connections' ); ?></span></a></div>
-									<div class="group"><?php echo esc_html( $group->name ); ?></div>
+									<div class="group"><a href="<?php echo esc_url( bp_get_group_permalink( $group ) ); ?>"><?php echo esc_html( $group->name ); ?></a></div>
 									<div class="sent"><?php echo esc_html( $date_sent ); ?></div>
 								</div>
 							<?php endforeach; ?>
