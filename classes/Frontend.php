@@ -431,7 +431,7 @@ class Frontend {
 		} else {
 			$groups = groups_get_groups(
 				[
-					'search_terms' => $term,
+					'search_terms' => addslashes( $term ),
 					'exclude'      => [ bp_get_current_group_id() ],
 					'status'       => [ 'public', 'private' ],
 				]
