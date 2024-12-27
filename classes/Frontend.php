@@ -598,7 +598,6 @@ class Frontend {
 						}
 
 						if ( $taxonomy_terms_order_is_active ) {
-							// @phpstan-ignore-next-line
 							remove_filter( 'to/get_terms_orderby/ignore', '__return_true' );
 						}
 
