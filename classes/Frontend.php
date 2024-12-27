@@ -557,7 +557,7 @@ class Frontend {
 						// Secondary sites don't run taxonomy-terms-order.
 						$taxonomy_terms_order_is_active = function_exists( 'TO_apply_order_filter' );
 						if ( $taxonomy_terms_order_is_active ) {
-							remove_filter( 'terms_clauses', 'TO_apply_order_filter', 10 );
+							add_filter( 'to/get_terms_orderby/ignore', '__return_true' );
 						}
 
 						$limit_to_posts = get_posts(
@@ -599,7 +599,7 @@ class Frontend {
 
 						if ( $taxonomy_terms_order_is_active ) {
 							// @phpstan-ignore-next-line
-							add_filter( 'terms_clauses', 'TO_apply_order_filter', 10, 3 );
+							remove_filter( 'to/get_terms_orderby/ignore', '__return_true' );
 						}
 
 						restore_current_blog();
