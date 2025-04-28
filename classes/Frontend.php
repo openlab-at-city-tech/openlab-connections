@@ -572,7 +572,7 @@ class Frontend {
 						}
 
 						$tax_query = [];
-						if ( $connected_group_settings['categories'] ) {
+						if ( is_array( $connected_group_settings['categories'] ) ) {
 							$tax_query[] = [
 								'taxonomy' => 'category',
 								'terms'    => $connected_group_settings['categories'],
