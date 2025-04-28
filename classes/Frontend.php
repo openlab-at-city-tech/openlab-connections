@@ -573,7 +573,6 @@ class Frontend {
 
 						$tax_query = [];
 						if ( $connected_group_settings['categories'] ) {
-							// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 							$tax_query[] = [
 								'taxonomy' => 'category',
 								'terms'    => $connected_group_settings['categories'],
@@ -586,6 +585,7 @@ class Frontend {
 								'fields'         => 'ids',
 								'posts_per_page' => -1,
 								'post__not_in'   => $post__not_in,
+								// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 								'tax_query'      => $tax_query,
 							]
 						);
