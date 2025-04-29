@@ -86,6 +86,7 @@ class Schema {
 				) {$charset_collate};";
 
 		if ( ! function_exists( 'dbDelta' ) ) {
+			// @phpstan-ignore-next-line
 			require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 		}
 
