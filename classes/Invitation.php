@@ -452,7 +452,8 @@ class Invitation {
 			}
 
 			if ( is_array( $r[ $int_field ] ) ) {
-				$ints_sql = implode( ',', array_map( 'intval', $r[ $int_field ] ) );
+				$ints_raw = array_filter( $r[ $int_field ], 'is_numeric' );
+				$ints_sql = implode( ',', array_map( 'intval', $ints_raw ) );
 
 				// phpcs:ignore WordPress.DB
 				$sql['where'][ $int_field ] = $wpdb->prepare( "%i IN ({$ints_sql})", $int_field );

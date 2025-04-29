@@ -110,7 +110,9 @@ $pending_invites_received = \OpenLab\Connections\Invitation::get(
 					if ( 'all' === $connection_settings['categories'] ) {
 						$selected_categories = 'all';
 					} else {
-						$saved_categories    = is_array( $connection_settings['categories'] ) ? $connection_settings['categories'] : [];
+						$saved_categories = is_array( $connection_settings['categories'] ) ? $connection_settings['categories'] : [];
+						$saved_categories = array_filter( $saved_categories, 'is_numeric' );
+
 						$selected_categories = array_map( 'intval', $saved_categories );
 					}
 				}
@@ -168,7 +170,7 @@ $pending_invites_received = \OpenLab\Connections\Invitation::get(
 
 										<?php foreach ( $site_categories as $site_category ) : ?>
 											<?php
-											$site_category_id   = is_array( $site_category ) && isset( $site_category['id'] ) ? $site_category['id'] : 0;
+											$site_category_id   = is_array( $site_category ) && isset( $site_category['id'] ) && is_numeric( $site_category['id'] ) ? $site_category['id'] : 0;
 											$site_category_name = is_array( $site_category ) && isset( $site_category['name'] ) && is_string( $site_category['name'] ) ? $site_category['name'] : '';
 											?>
 

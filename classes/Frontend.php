@@ -246,7 +246,7 @@ class Frontend {
 			return;
 		}
 
-		$invitation_id = (int) $_GET['delete-invitation'];
+		$invitation_id = is_numeric( $_GET['delete-invitation'] ) ? (int) $_GET['delete-invitation'] : 0;
 
 		check_admin_referer( 'delete-invitation-' . $invitation_id );
 
@@ -282,7 +282,7 @@ class Frontend {
 			return;
 		}
 
-		$invitation_id = (int) $_GET['accept-invitation'];
+		$invitation_id = is_numeric( $_GET['accept-invitation'] ) ? (int) $_GET['accept-invitation'] : 0;
 
 		check_admin_referer( 'accept-invitation-' . $invitation_id );
 
@@ -319,7 +319,7 @@ class Frontend {
 			return;
 		}
 
-		$invitation_id = (int) $_GET['reject-invitation'];
+		$invitation_id = is_numeric( $_GET['reject-invitation'] ) ? (int) $_GET['reject-invitation'] : 0;
 
 		check_admin_referer( 'reject-invitation-' . $invitation_id );
 
@@ -355,7 +355,7 @@ class Frontend {
 			return;
 		}
 
-		$connection_id = (int) $_GET['disconnect'];
+		$connection_id = is_numeric( $_GET['disconnect'] ) ? (int) $_GET['disconnect'] : 0;
 
 		check_admin_referer( 'disconnect-' . $connection_id );
 
@@ -391,8 +391,13 @@ class Frontend {
 			die;
 		}
 
-		$term = sanitize_text_field( wp_unslash( $_GET['term'] ) );
+		$term = is_string( $_GET['term'] ) ? sanitize_text_field( wp_unslash( $_GET['term'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ( empty( $term ) ) {
+			echo wp_json_encode( [] );
+			die;
+		}
 
 		$group_format_callback = function ( $group ) {
 			return [
@@ -418,7 +423,7 @@ class Frontend {
 
 				if ( ! empty( $parts['host'] ) && ! empty( $parts['path'] ) ) {
 					$site = get_site_by_path( $parts['host'], $parts['path'] );
-					if ( $site && 1 !== $site->blog_id ) {
+					if ( $site && 1 !== (int) $site->blog_id ) {
 						$group_id = openlab_get_group_id_by_blog_id( $site->blog_id );
 					}
 				}
@@ -477,7 +482,8 @@ class Frontend {
 			if ( in_array( '_all', $posted_categories, true ) ) {
 				$selected_categories = 'all';
 			} else {
-				$selected_categories = array_map( 'intval', $posted_categories );
+				$selected_categories = array_filter( $posted_categories, 'is_numeric' );
+				$selected_categories = array_map( 'intval', $selected_categories );
 			}
 		}
 		$settings['categories'] = $selected_categories;
