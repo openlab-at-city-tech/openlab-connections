@@ -9,7 +9,7 @@ parameters:
 
   excludePaths:
     - ./vendor/
-    - ./node_modules/
+    - ./node_modules/ (?)
     - ./classes/GroupExtension.php
 
   ignoreErrors:
